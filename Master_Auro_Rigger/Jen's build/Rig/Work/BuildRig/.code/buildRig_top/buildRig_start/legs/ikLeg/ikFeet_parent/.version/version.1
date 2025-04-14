@@ -1,0 +1,17 @@
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )  
+    subCog = 'CNT_SUB_COG_C'
+    
+    for side in sides:
+        
+        ikLegBtmXform = 'xform_CNT_IK_LEG_BTM_1_%s' % side
+        
+        cmds.parent( ikLegBtmXform, subCog )
+    
+    return

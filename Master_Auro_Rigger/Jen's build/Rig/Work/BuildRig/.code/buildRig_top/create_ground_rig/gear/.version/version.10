@@ -1,0 +1,34 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    subGround2 = process.get_option( 'sub ground 2' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )
+    controlsAttr = 'controlsVis'
+    structureGrp = process.get_option( 'structure Grp' , group = 'Groups' )
+    structureAttr = 'structureVis'
+    modelGrp = process.get_option( 'model Grp' , group = 'Groups' )
+    ModelAttr = 'modelVis'
+    sizex, sizey, sizez =  cmds.getAttr('%s.boundingBoxMax'%modelGrp)[0]
+        
+    # gear cnt
+    
+    gear = rigs_util.Control( 'GEAR_1 ')
+    xform = gear.create_xform( prefix ='xform' )
+    cmds.parent( xform, subGround2 )
+    gear.translate_shape(0, sizey*1.2, 0)
+    gear.rotate_shape(0, 0, 90)
+    gear.scale_shape(sizex*0.3, sizex*0.3, sizex*0.3 ,use_pivot=False)
+    gear.hide_scale_and_visibility_attributes()
+    gear.hide_translate_attributes()
+    gear.hide_rotate_attributes()
+    
+    #gear.hide_attributes(attributes='ro')
+    
+    # create attrs on gear cnt
+    
+    
+    return

@@ -1,0 +1,50 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    
+    joints = [i for i in process.get_option('spine', group = 'Rig Bone Groups') if i.find('JNT_spine') != -1 ]
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_1_C'
+    
+    
+    # spine controllers
+    
+    spine = rigs.FkCurveRig('Spine', 'C')
+    spine.set_joints(joints)
+    spine.set_control_size(6)
+    spine.set_attach_joints(True)
+    spine.set_orient_controls_to_joints(True)
+    spine.set_control_offset_axis('z')
+    #spine.set_control_offset_axis('z')
+    #spine.set_fix_x_axis(True)
+    #spine.set_ribbon(True)
+    #spine.set_closest_y(True)
+    #spine.set_advanced_twist(True)
+    '''
+    #rig.set_sub_visibility(False)
+    cog.set_control_shape('circle')
+    cog.set_control_size(2)
+    #rig.set_control_color(22)
+    #cog.set_scalable(True)
+    #rig.set_sub_control_color(17)
+    #rig.set_attach_type('hi')
+    cog.set_no_last_number(False)
+    cog.set_number_in_control_name(False)
+    
+    
+    #rig.set_scalable(True, keep_negative_scale_on_joint=False)
+    '''
+    spine.create()
+    
+    spine.set_control_parent( subCog )
+    spine.set_setup_parent( setupGrp )
+    
+    
+    return

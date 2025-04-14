@@ -1,0 +1,18 @@
+
+def main():
+    
+    sides = ['l', 'r']
+    
+    for side in sides:
+        followGrp = cmds.group(em=1, n= 'handFollow_%s_Grp' % side.upper(), p= 'CNT_CLAVICLE_1_%s' % side.upper())
+        pc = cmds.parentConstraint('JNT_hand_%s' % side, followGrp, mo=0)
+        
+        
+        # parent hand gear to it
+        cmds.parent('xform_CNT_GEAR_HAND_1_%s' % side.upper(), followGrp , r=1 )
+        
+        
+        
+        
+        
+    return

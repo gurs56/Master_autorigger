@@ -1,0 +1,26 @@
+[
+    [
+        "name",
+        "skin weights"
+    ],
+    [
+        "data_type",
+        "maya.skin_weights"
+    ],
+    [
+        "sub_folder",
+        ""
+    ],
+    [
+        "version up",
+        true
+    ],
+    [
+        "blend weights",
+        false
+    ],
+    [
+        "single file",
+        false
+    ]
+]

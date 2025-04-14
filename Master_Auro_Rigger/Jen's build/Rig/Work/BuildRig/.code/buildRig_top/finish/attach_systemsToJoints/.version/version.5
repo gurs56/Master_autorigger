@@ -1,0 +1,41 @@
+
+def main():
+    
+    systems = ['IK']
+    
+    body = ['legs', 'arms']
+    sides = ['l', 'r']
+    #rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    #controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    #setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )
+    #subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    #subCog = 'CNT_SUB_COG_C'
+    #hips = 'CNT_SUB_HIPS_C'
+    
+    #IK FK connection to body parts
+    
+    for part in body:
+        for system in systems:
+            for side in sides:
+                
+                joints = [
+                        i for i in process.get_option(
+                        '%s'%part , group = 'Rig Bone Groups' ) 
+                        if i[-3:-1].find('_%s'% side ) != -1
+                        ]
+                        
+                sys_joints = [
+                        i for i in process.get_option(
+                        '%s %s'% ( system , part ) , group = 'Rig Bone Groups' ) 
+                        if i[-3:-1].find('_%s'% side ) != -1
+                        ]
+                
+                
+                print joints
+                print sys_joints
+        
+        
+        
+    
+    
+    return

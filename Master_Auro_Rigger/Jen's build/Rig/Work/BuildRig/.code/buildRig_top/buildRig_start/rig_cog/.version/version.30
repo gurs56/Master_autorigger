@@ -1,0 +1,57 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    joints = process.get_option('pelvis', group = 'Rig Bone Groups')
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    
+    
+    # cog bone
+    '''
+    cog_tempBone = cmds.joint(n = 'cog')
+    tempCon = cmds.pointConstraint('JNT_thigh_l', 'JNT_thigh_r', cog_tempBone)
+    cmds.delete(tempCon[0])
+    '''
+    cog_tempBone = cmds.duplicate(joints, po=1)[0]
+    tempCon = cmds.pointConstraint('JNT_thigh_l', 'JNT_thigh_r', cog_tempBone)
+    cmds.delete(tempCon[0])
+    cmds.setAttr('%s.ry'%cog_tempBone, -90)
+    
+    # cog controller
+    
+    cog = rigs.SparseRig('COG', 'C')
+    cog.set_joints(cog_tempBone)
+    cog.set_attach_joints(False)
+    #cog.set_control_to_pivot(True)
+    cog.set_create_sub_control(True)
+    cog.set_sub_visibility(False)
+    #rig.set_sub_visibility(False)
+    cog.set_control_shape('outwardCirclePointer')
+    cog.set_control_offset_axis('z')
+    cog.set_control_size(6)
+    #rig.set_control_color(22)
+    #cog.set_scalable(True)
+    #rig.set_sub_control_color(17)
+    #rig.set_attach_type('hi')
+    cog.set_number_in_control_name(False)
+    #cog.set_no_last_number(False)
+    
+    #rig.set_scalable(True, keep_negative_scale_on_joint=False)
+    
+    cog.delete_setup()
+    cog.create()
+    
+    cog.set_control_parent( subGround2 )
+    subCog = cog.get_all_controls()[-1]
+    subCog_noNumber = subCog.replace('_1', '')
+    
+    cmds.rename(subCog, subCog_noNumber)
+    
+    cmds.delete(cog_tempBone)
+    
+    return

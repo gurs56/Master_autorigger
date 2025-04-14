@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "duplicate_and_rename_leg_joints"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

@@ -1,0 +1,44 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    body = ['arms' , 'legs']
+    subbody = [( 'upperarm', 'lowerarm' ) , ( 'thigh', 'calf' )]
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_C'
+    hips = 'CNT_SUB_HIPS_C'
+    
+    setup_grp = process.get_option( 'setup Grp' , group = 'Groups' )   
+    
+    for side in sides:
+        for part in body:
+            subpart_index = 0
+            for subpart in subbody[subpart_index]:
+            
+                joints = [
+                        i for i in process.get_option(
+                        '%s'%part , group = 'Rig Bone Groups' ) 
+                        if i[-2:].find('_%s'% side ) != -1 and
+                        i.find('%s_twist_01' % subpart ) != -1
+                        ]
+                if joints:        
+                    rig = rigs.TwistRig('%s_twist' % subpart, side = side)
+                    rig.set_joints(joints)
+                    
+                    rig.set_attach_joints(True)
+                    rig.create()
+                    rig.set_control_parent('CNT_FK_UPPERARM_1_%s' % side.upper() )
+                    rig.set_setup_parent(setupGrp)
+                    
+                subpart_index += 1
+        
+    
+    return

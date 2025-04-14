@@ -1,0 +1,31 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    
+    for side in sides:
+        
+        cnt = 'CNT_FOOTROLL_ROLL_1_%s' % side.upper()
+        
+        # fix rotate input on pivot attrs, disconnect from ry, connect to rz
+        
+        pivot_attrs = []
+        for i in cmds.listAttr(cnt, k=1):
+            if i.find('Pivot') != -1:
+                pivot_attrs.append(i) 
+        
+        for attr in pivot_attrs:
+            
+            uc = cmds.listConnections('%s.%s' % ( cnt , attr ) , d=1)[0]
+            driver = cmds.listConnections('%s.output' % uc , d=1)[0]
+            
+            cmds.disconnectAttr( '%s.output' % uc , '%s.rotateY' % driver )
+            cmds.connectAttr( '%s.output' % uc , '%s.rotateZ' % driver )
+             
+        
+        
+    return

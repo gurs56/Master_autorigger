@@ -1,0 +1,63 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    subGround2 = process.get_option( 'sub ground 2' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )
+    color_side = {'C':22, 'L':6, 'R':13}
+    # create gear cnts
+    jnts = ['JNT_hand_r', 'JNT_hand_l', 'JNT_foot_r', 'JNT_foot_l']
+    for jnt in jnts:
+        side = jnt[-1].upper()
+        body = ( jnt.split('_')[1] ).upper()
+        '''
+        if side in color_side:
+            color = color_side[side]
+        else:
+            color = 22
+        '''
+        gear = rigs_util.Control( 'CNT_GEAR_%s_1_%s' % ( body , side ) )
+        gear.set_curve_type( 'gear' )
+        
+        #gear.color(color)
+        xform = gear.create_xform( prefix = 'xform' )
+        cmds.parent( xform, subGround2 )
+        gear.hide_attributes( attributes = None )
+        g_name = gear.get()
+        
+        # make cnt follow the linked jnt
+        
+        cmds.parentConstraint(jnt, xform, mo=0)
+        
+        gear.color_respect_side(center_tolerance=0.001)
+        # create attrs on gear cnt
+        '''
+        cmds.addAttr(g_name, ln = modelAttr, at = 'bool', dv = 1, k = 1)
+        cmds.connectAttr(
+                    '%s.%s' % ( g_name, modelAttr ) , 
+                    '%s.v' % modelGrp
+                    )
+                    
+        
+        cmds.addAttr(g_name, ln = controlsAttr, at = 'bool', dv = 1, k = 1 )
+        cmds.connectAttr(
+                    '%s.%s' % ( g_name, controlsAttr ) , 
+                    '%s.v' % controlsGrp
+                    )
+                    
+        cmds.addAttr(g_name, ln = structureAttr, at = 'bool', dv = 1, k = 1 )
+        cmds.connectAttr(
+                    '%s.%s' % ( g_name, structureAttr ) , 
+                    '%s.v' % structureGrp
+                    )
+                    
+        cmds.addAttr(g_name, ln = setupAttr, at = 'bool', dv = 1, k = 1 )
+        cmds.connectAttr(
+                    '%s.%s' % ( g_name, setupAttr ) , 
+                    '%s.v' % setupGrp
+                    )
+        '''
+    return

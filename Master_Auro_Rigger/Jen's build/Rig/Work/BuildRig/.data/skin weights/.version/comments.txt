@@ -1,0 +1,9 @@
+
+version = 1; comment = "initial bad skinning"; user = "Jenny"
+version = 2; comment = "43 meshes, good first skinning minus fingers"; user = "Jenny"
+version = 3; comment = "*correction 49, and did arms temp"; user = "Jenny"
+version = 4; comment = "resave with extra jnts removed to not be extra data"; user = "Jenny"
+version = 5; comment = "just the body, fixed up pelvis influence and a stray weight"; user = "Jenny"
+version = 6; comment = "toebeans skinned"; user = "Jenny"
+version = 7; comment = "backpack to jnts"; user = "Jenny"
+version = 8; comment = "comms cover"; user = "Jenny"

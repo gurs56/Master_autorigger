@@ -1,0 +1,19 @@
+
+def main():
+    
+    # vars
+    
+    assetGrp =  process.get_option( 'asset Grp' , group = 'Groups' )
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    structureGrp = process.get_option( 'structure Grp' , group = 'Groups' )
+    controlGrp = process.get_option( 'controls Grp' , group = 'Groups' )
+    
+    # create rig top grp
+    
+    cmds.group( em = 1, n = rigGrp, p = assetGrp )
+    
+    # create structure top grp child of rig grp
+    
+    cmds.group( em = 1, n = structureGrp , p = rigGrp )
+    
+    return

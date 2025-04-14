@@ -1,0 +1,6 @@
+
+version = 1; comment = "a rig with ik limbs aaa"; user = "Jenny"
+version = 2; comment = "with ik fk switches "; user = "Jenny"
+version = 3; comment = "latest with finger, head controls"; user = "Jenny"
+version = 4; comment = "fixed fk arms/fingies orientation to move mirrored properly"; user = "Jenny"
+version = 5; comment = "with foot roooooolll"; user = "Jenny"

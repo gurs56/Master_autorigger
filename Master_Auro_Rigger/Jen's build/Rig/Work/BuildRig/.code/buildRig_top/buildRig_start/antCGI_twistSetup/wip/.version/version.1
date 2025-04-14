@@ -1,0 +1,75 @@
+from vtool.maya_lib import attr
+
+    
+body_parts = ['upperarm', 'lowerarm', 'thigh', 'calf']
+sides = ['l', 'r']
+setup = 'Setup_Grp'    
+#twists_l = 
+
+
+for side in sides:
+    for body in body_parts:
+        bodyBnd_top = 'JNT_%s_%s' % (body , side)
+        twistBnd_top = 'JNT_%s_twist_01_%s' % ( body , side )
+        twistBnd_btm = 'JNT_%s_twist_02_%s' % ( body , side )
+        twistBnd_aim = cmds.listRelatives( # like calf to thigh or foot to calf
+                    'JNT_%s_%s' % ( body , side ), 
+                    ad=0 , 
+                    type = 'joint'
+                    )[1]
+        fol_top = 'FOLLOW_%s_twist_01_%s' % ( body , side )
+        fol_btm = 'FOLLOW_%s_twist_02_%s' % ( body , side )
+        
+        
+        # create twist follow system
+        
+        twistFollows = cmds.duplicate( twistBnd_top , renameChildren = 1 )
+        cmds.rename( twistFollows[0], fol_top )
+        cmds.rename( twistFollows[1], fol_btm )
+        aim_loc = '%s_aim_%s' % (body , side)
+        cmds.spaceLocator(
+                    n = aim_loc
+                    )[0]
+                    
+        pc_temp = cmds.parentConstraint( fol_top , aim_loc, mo = 0 )
+        cmds.delete(pc_temp)
+        
+        cmds.parent( aim_loc , fol_top )
+        cmds.parent( fol_top , setup )
+        cmds.refresh()
+        cmds.select(cl=1)
+        
+        # constraints
+        # do if side ..?
+        aim_loc_path = cmds.ls(aim_loc, l=1)[0]
+        cmds.AimConstraint( 
+                twistBnd_aim , twistBnd_top ,
+                aim = [1, 0, 0],
+                u = [0, 0, 1],
+                wut = 'object',
+                wuo = aim_loc_path
+                )
+        for index, i in enumerate([bodyBnd_top, twistBnd_top, twistBnd_btm, twistBnd_aim, fol_top, fol_btm, twistFollows, aim_loc, aim_loc_path, fol_ikHandle]):
+            print index, i
+        '''       
+        fol_ikHandle = cmds.ikHandle( n = '%s_follow_ik_%s' % ( body ,  side ), startJoint = fol_top , endEffector = fol_btm , sol = 'ikRPsolver' )
+        pc_temp = cmds.parentConstraint( twistBnd_aim , fol_ikHandle[0], mo = 0 )
+        cmds.delete(pc_temp)
+        cmds.parent( fol_ikHandle , twistBnd_aim )
+        
+        for attr in 'xyz':
+            cmds.setAttr('%s.poleVector%s' % ( fol_ikHandle[0] , attr.upper() ) , 0)
+        
+        for index, i in enumerate([bodyBnd_top, twistBnd_top, twistBnd_btm, twistBnd_aim, fol_top, fol_btm, twistFollows, aim_loc, fol_ikHandle]):
+            print index, i
+        
+        # connect to second twist jnt
+        
+        attr.connect_multiply( '%s.rx' % bodyBnd_top , '%s.rx' % twistBnd_btm , value=0.5,skip_attach=False,plus=True)
+        
+        if body.find('arm') != -1:
+            cmds.ParentConstraint( 'JNT_spine_05', fol_top , mo=1)
+        else:
+            cmds.ParentConstraint( 'JNT_pelvis', fol_top , mo=1)
+        '''
+        

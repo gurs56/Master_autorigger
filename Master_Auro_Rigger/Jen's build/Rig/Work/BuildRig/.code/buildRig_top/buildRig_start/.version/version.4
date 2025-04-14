@@ -1,0 +1,15 @@
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    bnd = 'BND_'
+    rig = 'JNT_'
+    
+    # create rig top grp
+    
+    controlsGrp = cmds.group( em = 1 , n = process.get_option( 'controls Grp' , group = 'Groups' ), p = rigGrp )
+    
+    
+    return

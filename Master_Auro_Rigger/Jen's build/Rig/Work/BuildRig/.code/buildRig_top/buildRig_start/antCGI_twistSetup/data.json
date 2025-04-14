@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "antCGI_twistSetup"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

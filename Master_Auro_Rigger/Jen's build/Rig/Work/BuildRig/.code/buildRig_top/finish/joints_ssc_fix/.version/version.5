@@ -1,0 +1,9 @@
+
+def main():
+    
+    joints = cmds.listRelatives(process.get_option('structure Grp', group = 'Groups' ))
+    
+    for j in joints:
+        if cmds.objectType(j) == 'joint':
+            cmds.setAttr('%s.ssc'%j, 1)
+    return

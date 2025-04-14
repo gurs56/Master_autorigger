@@ -1,0 +1,28 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_C'
+    hips = 'CNT_SUB_HIPS_C'
+    
+    
+    for side in sides:
+        # ik foot roll setup
+        
+        footRoll = rigs.FootRollRig(description,side=None)
+        
+    
+    
+    
+    
+    
+    return

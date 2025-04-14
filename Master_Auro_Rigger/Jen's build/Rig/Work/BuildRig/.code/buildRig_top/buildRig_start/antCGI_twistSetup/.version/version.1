@@ -1,0 +1,30 @@
+
+def main():
+    
+    body_parts = ['upperarm', 'lowerarm', 'thigh', 'calf']
+    sides = ['l', 'r']
+    
+    twists_l = 
+    
+    
+    for side in sides:
+        for bp in body_parts:
+            
+            twistBnd_top = 'JNT_%s_twist_01_%s' % ( bp , side )
+            twistBnd_btm = 'JNT_%s_twist_02_%s' % ( bp , side )
+            
+            fol_top = 'FOLLOW_%s_twist_01_%s' % ( bp , side )
+            fol_btm = 'FOLLOW_%s_twist_02_%s' % ( bp , side )
+            
+            
+            twistFollows = cmds.duplicate( twistBnd_top , renameChilden = 1 )
+            cmds.rename( twistFollows[0], fol_top )
+            cmds.rename( twistFollows[1], fol_btm )
+            
+            w
+            
+            
+    
+    
+    
+    return

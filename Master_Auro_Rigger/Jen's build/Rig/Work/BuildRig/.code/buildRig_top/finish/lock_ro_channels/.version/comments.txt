@@ -1,0 +1,9 @@
+
+version = 1; comment = "make rotate order channels not keyable (with s)"; user = "Jenny"
+version = 2; comment = "-"; user = "Jenny"
+version = 3; comment = "just cnts"; user = "Jenny"
+version = 4; comment = "make RO not in cb"; user = "Jenny"
+version = 5; comment = "hide only if on a gear"; user = "Jenny"
+version = 6; comment = "-"; user = "Jenny"
+version = 7; comment = "lock"; user = "Jenny"
+version = 8; comment = "fix gear name"; user = "Jenny"

@@ -1,0 +1,4 @@
+['mesh info', [14, 30, 18, [0, 1, 3, 2], [1, 13, 3]]]
+['skinningMethod', 0]
+['maintainMaxInfluences', True]
+['maxInfluences', 3]

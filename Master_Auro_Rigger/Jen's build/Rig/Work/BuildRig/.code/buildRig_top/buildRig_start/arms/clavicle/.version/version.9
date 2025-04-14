@@ -1,0 +1,44 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subSpine3 = 'CNT_SUB_SPINE_3_C'
+    
+    # clavicle controller
+    for side in sides:
+        # side vars
+        joints = [i for i in process.get_option('arms', group = 'Rig Bone Groups') if i.find('JNT_clavicle_%s'%side) != -1]
+        
+        clav = rigs.SparseRig('clavicle', side)
+        clav.set_joints(joints)
+        clav.set_attach_joints(False)
+        clav.set_control_to_pivot(True)
+        clav.set_create_sub_control(False)
+        #rig.set_sub_visibility(False)
+        clav.set_control_shape('yaw')
+        clav.set_control_offset_axis('z')
+        clav.set_control_size(4)
+        #rig.set_control_color(22)
+        #cog.set_scalable(True)
+        #rig.set_sub_control_color(17)
+        #rig.set_attach_type('hi')
+        #cog.set_number_in_control_name(False)
+        
+        
+        #rig.set_scalable(True, keep_negative_scale_on_joint=False)
+        
+        clav.create()
+        
+        clav.delete_setup()
+        clav.set_control_parent( subSpine3 )
+    
+    
+    
+    return

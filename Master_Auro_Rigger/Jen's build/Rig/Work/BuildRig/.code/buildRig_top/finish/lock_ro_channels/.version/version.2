@@ -1,0 +1,7 @@
+
+def main():
+    
+    ro_attributes = cmds.ls('*.rotateOrder')
+    for attr in ro_attributes:
+        cmds.setAttr( attr , k=0, cb=1)
+    return

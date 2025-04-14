@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "import_sparse follow weights"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

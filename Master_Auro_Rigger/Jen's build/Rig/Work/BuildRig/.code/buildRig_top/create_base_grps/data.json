@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "create_base_grps"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

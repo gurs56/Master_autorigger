@@ -1,0 +1,36 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )   
+    
+    # fingers rigs
+    
+    all_fingers = list(set(i.split('_')[1] for i in process.get_option('fingers', group = 'Rig Bone Groups')))
+    for side in sides:
+        parentGrp = 'handFollow_%s_Grp' % side.upper()
+        for finger in all_fingers:
+            
+            joints =  [
+                i for i in process.get_option('fingers', group = 'Rig Bone Groups')
+                if i in cmds.ls('JNT_%s_0*_%s' % ( finger , side ) )
+                    ]
+            
+            fing = rigs.FkCurlRig(finger,side=side.upper())
+            fing.set_joints(joints)
+            fing.set_use_joint_controls(False) # removes jnt as parent of xform, weird heirarchy thing
+            
+            fing.set_offset_rotation([0, 0, 180]) #test to mirror 1 side so curl attr works the same
+            fing.set_control_offset_axis('z')
+            fing.delete_setup()
+            
+            fing.create()
+            fing.set_control_parent( parentGrp )
+            
+    return

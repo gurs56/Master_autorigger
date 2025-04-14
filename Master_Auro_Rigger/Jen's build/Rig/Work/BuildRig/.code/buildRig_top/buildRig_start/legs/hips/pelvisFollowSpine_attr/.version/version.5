@@ -1,0 +1,14 @@
+from vtool.maya_lib import attr
+def main():
+    
+    hipsCnt = 'CNT_HIPS_C'
+    attrName = 'followSpine'
+    cmds.addAttr(hipsCnt, ln = attrName, dv = 0, at = 'float', max = 1, cb=1, k=0)
+    
+    # parent constraint for connection
+    pc = cmds.parentConstraint('xform_CNT_HIPS_C', 'CNT_SUB_SPINE_1_C', 'driver_CNT_HIPS_C', mo=1, sr = ('y', 'z')) 
+    
+    cmds.connectAttr('%s.%s' % ( hipsCnt , attrName ), '%s.w0' % pc[0] )
+    attr.connect_reverse('%s.%s' % ( hipsCnt , attrName ), '%s.w1' % pc[0] )
+    
+    return

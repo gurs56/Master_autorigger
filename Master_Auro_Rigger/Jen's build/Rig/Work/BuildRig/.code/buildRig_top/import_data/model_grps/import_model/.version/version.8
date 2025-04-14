@@ -1,0 +1,14 @@
+
+def main():
+    
+    # grp names
+    allGrp = 'all_Grp'
+    assetGrp =  process.get_option( 'asset Grp' , group = 'Groups' )
+    
+    #import model
+    cmds.group( process.import_data('model') , n = 'Model_Grp' )
+    
+    #parent model grp
+    cmds.group( process.get_option( 'model Grp', group = 'Groups' ), p = assetGrp )
+    
+    return

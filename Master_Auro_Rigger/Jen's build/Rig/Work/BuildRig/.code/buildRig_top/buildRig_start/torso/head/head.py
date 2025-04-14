@@ -1,0 +1,35 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    neckEnd = 'CNT_NECK_2_C'
+    
+    # neck controllers
+    
+    joints = [i for i in process.get_option('spine', group = 'Rig Bone Groups') if i.find('head') != -1]
+    
+    head = rigs.SparseRig('head', 'C')
+    head.set_joints(joints[0])
+    head.set_control_offset_axis('z')
+    head.set_control_size(4)
+    head.set_create_sub_control(True)
+    #rig.set_control_color(22)
+    #cog.set_scalable(True)
+    #rig.set_sub_control_color(17)
+    #rig.set_attach_type('hi')
+    #cog.set_number_in_control_name(False)
+    
+    
+    head.delete_setup()
+    head.create()
+    head.set_control_parent( neckEnd )
+    
+    
+    
+    return

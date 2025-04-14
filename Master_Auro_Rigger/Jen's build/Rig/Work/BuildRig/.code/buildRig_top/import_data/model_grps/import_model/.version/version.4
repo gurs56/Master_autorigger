@@ -1,0 +1,5 @@
+
+def main():
+    topGrp = cmds.group( em= 1 , n = 'Model_Grp' )
+    cmds.group( (process.import_data('model')) , p= topGrp )
+    return

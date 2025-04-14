@@ -1,0 +1,84 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+from vtool.maya_lib import core
+from vtool.maya_lib import space
+
+
+def main():
+    
+    # vars
+    
+    sides = ['l', 'r']
+    body = ['arms' , 'legs']     
+    subbody = [( 'upperarm', 'lowerarm' ) , ( 'thigh', 'calf' )]
+    twist_topbtm_jnts = [(('upperarm', 'lowerarm'), ('lowerarm', 'hand')), (('thigh', 'calf'), ('calf', 'foot'))]
+    
+    subCog = 'CNT_SUB_COG_C'
+    hips = 'CNT_SUB_HIPS_C'
+    
+    setup_grp = process.get_option( 'setup Grp' , group = 'Groups' )   
+    
+    # create group for twist setups
+
+    twist_grp = cmds.group( em = 1, n = 'twist_Setup_Grp', p = setup_grp)
+    
+    
+    for side in sides:
+        for part in body:
+            part_index = body.index(part)
+            
+            for subpart in subbody[part_index]:
+                subpart_index = subbody[part_index].index(subpart)
+                twist_rig_grp = cmds.group( em = 1, n = 'twistRibbon_%s_%s_Grp' % ( subpart , side ), p = twist_grp )
+                                   
+                # create twist follow jnts for setup
+                ribbonTop = 'JNT_%s_%s' % ( twist_topbtm_jnts[body.index(part)][subpart_index][0]  , side )
+                ribbonBtm = 'JNT_%s_%s' % ( twist_topbtm_jnts[body.index(part)][subpart_index][1]  , side )
+                
+                ribbonTop_dup = cmds.duplicate(
+                        ribbonTop, 
+                        n = '%s' % ribbonTop.replace('JNT', 'TWIST_%s' %subpart),
+                        po=1
+                        )[0]
+                  
+                ribbonBtm_dup = cmds.duplicate(
+                        ribbonBtm, 
+                        n = '%s' % ribbonBtm.replace('JNT', 'TWIST_%s' %subpart),
+                        po=1
+                        )[0]
+                    
+                for jnt in [ ribbonTop, ribbonBtm ]:
+                    
+                    dup = jnt.replace('JNT', 'TWIST_%s' %subpart)
+                                
+                    xform = space.create_xform_group( dup , prefix='xform', use_duplicate=False ,copy_scale=False)
+                    cmds.parent( xform , twist_rig_grp )
+                    cmds.parentConstraint( jnt , xform )
+                    
+                    
+                    
+                # assign twist jnts - bnd jnts
+                joints = cmds.ls('JNT_%s_twist_*_%s' % ( subpart , side ))
+                                
+                # create twist ribbon from top / btm jnts on to twist jnts
+                
+                rig = rigs_util.TwistRibbon(ribbonTop_dup, end_transform = ribbonBtm_dup)
+                rig.set_description('%s_%s' % ( subpart, side ))
+                #rig.set_joint_count(3)
+                rig.set_joints(joints)
+                rig.set_top_parent(ribbonTop_dup)
+                rig.set_btm_parent(ribbonBtm_dup)
+                rig.set_attach_directly(True)
+                
+                rig.set_rounded(True)
+                
+                rig.create()
+                
+                cmds.parent( 'twistRibbon_%s_%s' % ( subpart, side ), twist_grp )
+                # might need fix since it creates locators to follow the top and btm parent, 
+                # that is currently the bind skeleton
+    
+        
+    
+    return

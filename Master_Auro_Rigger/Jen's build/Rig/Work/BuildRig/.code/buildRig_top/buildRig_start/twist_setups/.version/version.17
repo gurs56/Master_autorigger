@@ -1,0 +1,59 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    body = ['arms' , 'legs']
+    subbody = [( 'upperarm', 'lowerarm' ) , ( 'thigh', 'calf' )]
+    twist_topbtm_jnts = [(('upperarm', 'lowerarm'), ('lowerarm', 'hand')), (('thigh', 'calf'), ('calf', 'foot'))]
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_C'
+    hips = 'CNT_SUB_HIPS_C'
+    
+    setup_grp = process.get_option( 'setup Grp' , group = 'Groups' )   
+    
+    # create group for twist setups
+
+    twist_grp = cmds.group( em = 1, n = 'Twist_Setup_Grp', p = setup_grp)
+    
+    
+    for side in sides:
+        for part in body:
+            subpart_index = 0
+            
+            for subpart in subbody[subpart_index]:
+                   
+                # create twist setup follow jnts
+                ribbonTop = cmds.duplicate('JNT_%s_%s' % ( twist_topbtm_jnts[body.index(part)][subpart_index][0]  , side )
+                
+                
+                
+                
+                
+                
+                joints = [ 'JNT_upperarm_%s'%side, 'JNT_lowerarm_%s'%side]
+                
+                if joints:        
+                    rig = rigs_util.TwistRibbon(joints[0], end_transform = joints[-1])
+                    rig.set_description('%s_%s' % ( subpart, side ))
+                    #rig.set_joint_count(3)
+                    rig.set_joints(['JNT_upperarm_twist_01_l', 'JNT_upperarm_twist_02_l'])
+                    rig.set_top_parent('JNT_upperarm_%s'%side)
+                    rig.set_btm_parent('JNT_lowerarm_%s'%side)
+                    rig.set_attach_directly(True)
+                    rig.create()
+                    
+                    
+            subpart_index += 1
+    
+        
+    
+    return

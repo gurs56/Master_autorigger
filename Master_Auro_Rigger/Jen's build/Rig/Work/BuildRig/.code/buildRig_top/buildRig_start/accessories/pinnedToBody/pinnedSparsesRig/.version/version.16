@@ -1,0 +1,60 @@
+from vtool.maya_lib import rigs
+
+def main():
+    
+    # set vars
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    sparseSetup = 'sparse_setup'
+    '''
+    sparseJnt_geoFollow_dict = {'JNT_backpack_c': 'BODY', 'JNT_commsCover_l': 'COMNS'}
+    sparseJnt_parentCnt_dict = {'JNT_calfJet_l': 'CNT_SUB_HIPS_C', 'JNT_commsCover_l': 'CNT_CLAVICLE_1_L', 'JNT_gasTank_c': 'CNT_SUB_COG_C', 'JNT_backpackZipper_l': 'CNT_SUB_BACKPACK_1_C', 'JNT_calfJet_r': 'CNT_SUB_HIPS_C', 'JNT_backpack_c': 'CNT_SUB_SPINE_3_C'}
+    '''
+    
+    sparseJnt_geoFollow_dict =  process.get_option( 'sparseJnt_geoFollow_dict' , group = 'Groups' ) 
+    sparseJnt_parentCnt_dict =  process.get_option( 'sparseJnt_parentCnt_dict' , group = 'Groups' ) 
+    
+    # create sparse locs grp
+    sparseLocsSetup = cmds.group(em=1, n='sparseLocs_setup', p=sparseSetup)  
+    
+    
+    for jnt in sparseJnt_geoFollow_dict:
+        
+        # set vars
+        geoToFollow = sparseJnt_geoFollow_dict[jnt]
+        control_parent = sparseJnt_parentCnt_dict[jnt]
+        geo_sparseJnt = 'geo_%s' % jnt
+        uvPinName = 'uvPin_%s' % jnt
+        pinOutName = 'pinOutput_%s' % jnt
+        side = jnt[-1]
+        name = jnt.split('_')[1]
+        
+        # do rig
+        rig = rigs.SparseRig(name, side)
+        
+        rig.set_joints(jnt)
+        rig.set_control_size(10)
+        rig.set_control_shape('cube')
+        rig.set_create_sub_control(True)
+        rig.set_sub_visibility(False)
+
+        rig.delete_setup()
+        rig.create()
+        rig.set_control_parent(control_parent)
+        
+        # make uvpin
+        closestFace = '%s.f[0]' % geo_sparseJnt
+        cmds.select(closestFace)
+        cmds.UVPin() # double check your own settings
+        
+        cmds.rename( 'uvPin1' , uvPinName )
+        cmds.rename( 'pinOutput', pinOutName )
+        cmds.parent( pinOutName , sparseLocsSetup )
+        
+        # constrain to cnt group
+        cnt_driver = rig.get_controls('driver')[0]
+        cmds.parentConstraint( pinOutName , cnt_driver , mo=1)
+        
+    return
+    
+    
+

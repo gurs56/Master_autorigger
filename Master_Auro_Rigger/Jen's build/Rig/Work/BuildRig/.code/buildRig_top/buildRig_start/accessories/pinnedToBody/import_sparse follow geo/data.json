@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "import_sparse follow geo"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

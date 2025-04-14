@@ -1,0 +1,84 @@
+//Maya ASCII 2022 scene
+//Name: lambert3SG.ma
+//Last modified: Sun, Oct 27, 2024 03:49:51 AM
+//Codeset: 1252
+requires maya "2022";
+requires "stereoCamera" "10.0";
+requires "mtoa" "4.2.1";
+currentUnit -l centimeter -a degree -t film;
+fileInfo "application" "maya";
+fileInfo "product" "Maya 2022";
+fileInfo "version" "2022";
+fileInfo "cutIdentifier" "202102181415-29bfc1879c";
+fileInfo "osv" "Windows 10 Home v2009 (Build: 19045)";
+fileInfo "UUID" "CB21289A-4682-32C6-E08F-30BBE0E8A509";
+createNode shadingEngine -n "lambert3SG";
+	rename -uid "50B51CAF-456E-89D4-22C3-D891E3650251";
+	setAttr ".ihi" 0;
+	setAttr -s 5 ".dsm";
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo11";
+	rename -uid "726F6957-4D4D-01B0-232D-21B8395BDA34";
+createNode lambert -n "pink";
+	rename -uid "C3593930-40D5-35EA-4A23-10BB70C8D686";
+	setAttr ".c" -type "float3" 0.95520002 0.73390001 0.91720003 ;
+createNode lightLinker -s -n "lightLinker1";
+	rename -uid "F378836A-4A36-B62C-509D-C99C1911BAA6";
+	setAttr -s 27 ".lnk";
+	setAttr -s 27 ".slnk";
+select -ne :time1;
+	setAttr ".o" 1;
+	setAttr ".unw" 1;
+select -ne :hardwareRenderingGlobals;
+	setAttr ".otfna" -type "stringArray" 22 "NURBS Curves" "NURBS Surfaces" "Polygons" "Subdiv Surface" "Particles" "Particle Instance" "Fluids" "Strokes" "Image Planes" "UI" "Lights" "Cameras" "Locators" "Joints" "IK Handles" "Deformers" "Motion Trails" "Components" "Hair Systems" "Follicles" "Misc. UI" "Ornaments"  ;
+	setAttr ".otfva" -type "Int32Array" 22 0 1 1 1 1 1
+		 1 1 1 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 ;
+	setAttr ".fprt" yes;
+select -ne :renderPartition;
+	setAttr -s 27 ".st";
+select -ne :renderGlobalsList1;
+select -ne :defaultShaderList1;
+	setAttr -s 30 ".s";
+select -ne :postProcessList1;
+	setAttr -s 2 ".p";
+select -ne :defaultRenderUtilityList1;
+	setAttr -s 23 ".u";
+select -ne :defaultRenderingList1;
+select -ne :defaultTextureList1;
+	setAttr -s 19 ".tx";
+select -ne :initialShadingGroup;
+	setAttr -s 11 ".dsm";
+	setAttr ".ro" yes;
+select -ne :initialParticleSE;
+	setAttr ".ro" yes;
+select -ne :defaultRenderGlobals;
+	setAttr ".ren" -type "string" "arnold";
+select -ne :defaultResolution;
+	setAttr ".pa" 1;
+select -ne :defaultColorMgtGlobals;
+	setAttr ".cfe" yes;
+	setAttr ".cfp" -type "string" "<MAYA_RESOURCES>/OCIO-configs/Maya2022-default/config.ocio";
+	setAttr ".wsn" -type "string" "ACEScg";
+select -ne :hardwareRenderGlobals;
+	setAttr ".ctrs" 256;
+	setAttr ".btrs" 512;
+select -ne :ikSystem;
+	setAttr -s 4 ".sol";
+connectAttr "pink.oc" "lambert3SG.ss";
+connectAttr "COMNSShape.iog" "lambert3SG.dsm" -na;
+connectAttr "BACKPACK_LOCKShape.iog" "lambert3SG.dsm" -na;
+connectAttr "BODYShape.iog" "lambert3SG.dsm" -na;
+connectAttr "HELMET_HOLEShape.iog" "lambert3SG.dsm" -na;
+connectAttr "COMMN_BELTShape.iog" "lambert3SG.dsm" -na;
+connectAttr "lambert3SG.msg" "materialInfo11.sg";
+connectAttr "pink.msg" "materialInfo11.m";
+relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "lambert3SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "lambert3SG.message" ":defaultLightSet.message";
+connectAttr "lambert3SG.pa" ":renderPartition.st" -na;
+connectAttr "pink.msg" ":defaultShaderList1.s" -na;
+// End of lambert3SG.ma

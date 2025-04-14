@@ -1,0 +1,7 @@
+
+def main():
+    
+    allGrp = 'all_Grp'
+    assetGrp =  process.get_option( 'asset Grp' , group = 'Group Info' )
+    
+    cmds.group( process.import_data('skeletal mesh') , p = assetGrp )

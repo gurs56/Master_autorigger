@@ -1,0 +1,6 @@
+{'lambert4SG' : [u'VISORShape', u'GLOWSTICK_RShape', u'GLOWSTICK_LShape', u'HAND_ARMORShape', u'BOOST1_LShape', u'BOOST2_LShape', u'BOOST2_RShape', u'BOOST1_RShape']}
+{'lambert8SG' : [u'BELTShape', u'L_ARM_UPShape', u'L_ARM_DOWNShape', u'FOOT_1_RShape', u'LEG_MID_LShape', u'FOOT_1_LShape', u'FOREARM_LShape', u'LEG_MID_RShape', u'TANKShape']}
+{'lambert6SG' : [u'BACKPACKShape']}
+{'lambert3SG' : [u'BODYShape', u'HELMET_HOLEShape', u'COMMN_BELTShape', u'BACKPACK_LOCKShape', u'COMNSShape']}
+{'lambert7SG' : [u'TANK_LOCKShape', u'ZIPLOCKShape', u'GAS_CYLINDER_LShape', u'GAS_CYLINDER_RShape', u'ZIPPER_1Shape', u'ZIPPER_2Shape']}
+{'lambert5SG' : [u'LEG_UP_LShape', u'HELMETShape', u'KNEEPADD_LShape', u'FOREARM_ARMOR_RShape', u'HAND_RShape', u'BUCKLEShape', u'LEG_DOWN_LShape', u'FOOT_2_LShape', u'FOOT_3_LShape', u'FOOT_2_RShape', u'FOOT_3_RShape', u'KNEEPAD_RShape', u'LEG_DOWN_RShape', u'HAND_LShape', u'LEG_UP_RShape', u'HAND_ARMOR_3Shape', u'HAND_ARMOR_2Shape', u'HAND_ARMOR_4Shape', u'HAND_ARMOR_1Shape', u'COMS_COVERShape']}

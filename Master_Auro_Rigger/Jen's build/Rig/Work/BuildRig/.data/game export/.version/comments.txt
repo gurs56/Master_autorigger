@@ -1,0 +1,2 @@
+
+version = 1; comment = "skeleton, model, and skin weights, first try with vetala fbx data"; user = "Jenny"

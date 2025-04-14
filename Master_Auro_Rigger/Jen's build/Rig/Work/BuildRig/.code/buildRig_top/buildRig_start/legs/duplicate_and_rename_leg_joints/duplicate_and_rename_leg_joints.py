@@ -1,0 +1,33 @@
+
+def main():
+    
+    
+    # vars
+    
+    sides = ['l', 'r']
+    remove_child = 'foot'
+    setup_grp =  process.get_option( 'setup Grp' , group = 'Groups' )  
+    
+    for side in sides:
+        joints = [i for i in process.get_option('legs', group = 'Rig Bone Groups') if i.find('JNT_thigh_%s'%side) != -1][0]
+        
+        for system in ['IK', 'FK']:
+            dup = cmds.duplicate(joints, n = joints.replace('JNT_', '%s_'%system), rr=1)
+            cmds.parent(dup[0], setup_grp)
+            
+            for j in cmds.listRelatives(dup, ad=1, f=1):
+                j_sn  = j.split('|')[-1]
+                if j_sn.find('JNT_') != -1 and j.find('twist') == -1 :
+                    j_ikname = j_sn.replace('JNT_', '%s_'%system)
+                    cmds.rename( j, j_ikname )
+                    
+                elif j.find('twist') != -1:
+                    cmds.delete(j)
+            
+            ''' nvm, make the system for both :- D
+            if system.find('IK') != -1:
+                cmds.delete(cmds.listRelatives('%s_%s_%s'% ( system , remove_child , side ) ))
+            '''
+    
+    
+    return

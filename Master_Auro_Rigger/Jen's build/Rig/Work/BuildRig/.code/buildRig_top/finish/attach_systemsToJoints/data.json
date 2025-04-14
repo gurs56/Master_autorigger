@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "attach_systemsToJoints"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

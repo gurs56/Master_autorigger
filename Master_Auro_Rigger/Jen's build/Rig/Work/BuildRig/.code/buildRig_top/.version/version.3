@@ -1,0 +1,9 @@
+
+def main():
+    
+    # create top grps for asset
+    
+    allGrp = cmds.group( em = 1 , n = process.get_option( 'all Grp' , group = 'Group Info' ))
+    assetGrp = cmds.group( em = 1 , n = process.get_option( 'asset Grp' , group = 'Group Info' ), p = allGrp )
+    
+    return

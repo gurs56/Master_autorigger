@@ -1,0 +1,13 @@
+
+def main():
+    
+    
+    # vars
+    
+    side = 'l'
+    joints = i in process.get_option('arms', group = 'Rig Bone Groups') if i.find('JNT_clavicle_%s'%side) != -1
+    
+    cmds.duplicate(joints, n = joints.replace('JNT_', 'IK_'))
+    
+    
+    return

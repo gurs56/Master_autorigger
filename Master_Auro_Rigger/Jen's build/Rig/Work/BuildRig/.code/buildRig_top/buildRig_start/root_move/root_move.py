@@ -1,0 +1,23 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    joints = process.get_option('root')
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    
+    # root controller
+    
+    root = rigs.GroundRig('RootMove_1')
+    root.set_joints(joints)
+    root.set_control_size(.5)
+    root.set_control_offset_axis('x')
+    root.delete_setup()
+    root.create()
+    root.set_control_parent(subGround2)
+    
+    return

@@ -1,0 +1,57 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_1_C'
+    hips = 'CNT_SUB_HIPS_C'
+    
+    for side in sides:
+        # fk arm setup
+        joints = [
+                i for i in process.get_option( 'FK legs' , 
+                group = 'Rig Bone Groups' ) 
+                if i.find('%s_%s'% ( i[:-2] , side )) != -1
+                ]
+                
+        
+        
+        leg = rigs.FkRig('fk_Leg', side)
+        leg.set_joints(joints)
+        leg.set_control_offset_axis('z')
+        leg.set_control_size(6)
+        #arm.set_create_stretchy(True)
+        #arm.set_orient_constrain(True)
+        #arm.set_create_world_switch(True)
+        #arm.set_top_control_as_locator(True)
+        #arm.set_match_btm_to_joint(True)
+        #arm.set_create_top_control(True)
+        #arm.set_create_ik_buffer_joint(True)
+        #arm.set_solver_type(solver_name)
+        #arm.set_stretch_axis('x')
+        #arm.set_pole_follow_transform('CNT_GROUND_1', 0)
+        #arm.set_pole_follow_transform('CNT_SUB_SPINE_3_C', 0)
+        #arm.set_pole_follow_transform('CNT_ARM_BTM_1_L', 0)
+        leg.delete_setup()
+        leg.create()
+        leg.set_control_parent( hips )
+        
+        # rename cnts
+        rename = ['thigh', 'calf', 'foot', 'toe']
+        cnt_index = 0
+        for cnt in leg.controls[:]:
+            rigs_util.rename_control(cnt, cnt.replace('%s' % cnt [7:12], '%s_1'%rename[cnt_index].upper()))
+            cnt_index += 1
+            
+        # connect vis to gear attr        
+        gear = 'CNT_GEAR_FOOT_1_%s' % side.upper()
+        hide_items = ['controls_fk_Leg_1_%s' % side.upper()]
+        for hide in hide_items:
+            cmds.connectAttr('%s.ikFkSwitch' % gear,'%s.v' % hide)
+    return

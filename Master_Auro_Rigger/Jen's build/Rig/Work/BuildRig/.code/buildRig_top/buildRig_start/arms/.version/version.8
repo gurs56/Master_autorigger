@@ -1,0 +1,35 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    '''
+    joints = [
+    i for i in process.get_option('arms', group = 'Rig Bone Groups') 
+    if i.find('_l') != -1 
+    and i.find('_clavicle_') == -1
+    and i.find('_twist_') == -1
+    ]
+    joints.append('JNT_hand_l')
+    '''
+    joints = ['JNT_upperarm_l', 'JNT_lowerarm_l', 'JNT_hand_l']
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_1_C'
+    
+    arm = rigs.IkAppendageRig('Arm', 'L')
+    arm.set_joints(joints)
+    arm.set_control_offset_axis('z')
+    arm.set_control_size(6)
+    #arm.set_create_twist(True)
+    
+    arm.create()
+    arm.set_control_parent( subCog )
+    arm.set_setup_parent( setupGrp )
+    
+    
+    return

@@ -1,0 +1,25 @@
+from vtool.maya_lib import rigs
+
+
+def main():
+    
+    sparse_dict = process.get_option('sparseJnt_geoFollow_dict')
+    
+    jnt = 'JNT_backpack_c'
+    control_parent = 'CNT_SUB_SPINE_3_C' 
+    
+    side = jnt[-1]
+    name = jnt.split('_')[1]
+    '''
+    rig = rigs.SparseRig(name, side)
+    
+    rig.set_joints(jnt)
+    rig.set_control_size(10)
+    rig.set_control_shape('cube')
+    
+    rig.delete_setup()
+    rig.create()
+    rig.set_control_parent(control_parent)
+    
+    '''
+    return

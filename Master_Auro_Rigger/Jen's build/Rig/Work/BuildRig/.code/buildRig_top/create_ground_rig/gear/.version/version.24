@@ -1,0 +1,47 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    subGround2 = process.get_option( 'sub ground 2' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )
+    controlsAttr = 'controlsVis'
+    structureGrp = process.get_option( 'structure Grp' , group = 'Groups' )
+    structureAttr = 'structureVis'
+    modelGrp = process.get_option( 'model Grp' , group = 'Groups' )
+    modelAttr = 'modelVis'
+    sizex, sizey, sizez =  cmds.getAttr('%s.boundingBoxMax'%modelGrp)[0]
+        
+    # create gear cnt
+    
+    gear = rigs_util.Control( 'GEAR_1' )
+    gear.set_curve_type( 'gear' )
+    gear.set_color_hue(22)
+    xform = gear.create_xform( prefix = 'xform' )
+    cmds.parent( xform, subGround2 )
+    gear.hide_attributes( attributes = None )
+    g_name = gear.get()
+    # create attrs on gear cnt
+    
+    cmds.addAttr(g_name, ln = modelAttr, at = 'bool', dv = 1, k = 1)
+    cmds.connectAttr(
+                '%s.%s' % ( g_name, modelAttr ) , 
+                '%s.v' % modelGrp
+                )
+                
+    
+    cmds.addAttr(g_name, ln = controlsAttr, at = 'bool', dv = 1, k = 1 )
+    cmds.connectAttr(
+                '%s.%s' % ( g_name, controlsAttr ) , 
+                '%s.v' % controlsGrp
+                )
+                
+    cmds.addAttr(g_name, ln = structureAttr, at = 'bool', dv = 1, k = 1 )
+    cmds.connectAttr(
+                '%s.%s' % ( g_name, structureAttr ) , 
+                '%s.v' % structureGrp
+                )
+    
+    return

@@ -1,0 +1,36 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    
+    
+    joints = process.get_option('root')
+    
+    rig = rigs.SparseRig('Ground','C')
+    rig.set_joints(joints)
+    rig.set_attach_joints(True)
+    rig.set_control_to_pivot(True)
+    
+    
+    rig.set_create_sub_control(True)
+    rig.set_sub_visibility(False)
+    rig.set_control_shape('outwardCirclePointer')
+    rig.set_control_size(30)
+    rig.set_control_color(22)
+    rig.set_sub_control_color(17)
+    rig.set_attach_type('hi')
+    #rig.set_no_last_number(True)
+    #rig.set_number_in_control_name(False)
+    
+    
+    rig.set_scalable(True, keep_negative_scale_on_joint=False)
+    
+    rig.set_control_parent(rigGrp)
+    rig.create()
+    
+    subCnt = rig.controls[-1]
+    
+    
+    return

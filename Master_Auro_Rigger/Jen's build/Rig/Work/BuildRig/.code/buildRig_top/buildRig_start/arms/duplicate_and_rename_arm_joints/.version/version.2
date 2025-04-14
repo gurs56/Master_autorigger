@@ -1,0 +1,17 @@
+
+def main():
+    
+    
+    # vars
+    
+    side = 'l'
+    joints = [i for i in process.get_option('arms', group = 'Rig Bone Groups') if i.find('JNT_clavicle_%s'%side) != -1][0]
+    
+    cmds.duplicate(joints, n = joints.replace('JNT_', 'IK_'))
+    
+    for j in cmds/listRelatives(joints, ad=1):
+        if j.find('JNT_') != -1:
+            j_ikname = j.replace('JNT_', 'IK_')
+            cmds.rename( j, j_ikname )
+    
+    return

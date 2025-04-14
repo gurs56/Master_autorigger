@@ -1,0 +1,8 @@
+
+version = 1; comment = "initial model v2"; user = "Jenny"
+version = 2; comment = "scale down model by values posted in disc"; user = "Jenny"
+version = 3; comment = "v3 model working names!"; user = "Jenny"
+version = 4; comment = "-"; user = "Jenny"
+version = 5; comment = "model v4 still wip"; user = "Jenny"
+version = 6; comment = "revret until finished"; user = "Jenny"
+version = 7; comment = "set all transforms to zero"; user = "Jenny"

@@ -1,0 +1,59 @@
+from vtool.maya_lib import attr
+
+
+def main():
+    
+    systems = ['IK', 'FK']
+    
+    body = ['legs', 'arms']
+    end_body = ['foot', 'hand']
+    sides = ['l', 'r']
+    #rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    #controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    #setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )
+    #subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    #subCog = 'CNT_SUB_COG_C'
+    #hips = 'CNT_SUB_HIPS_C'
+    
+    #IK FK connection to body parts by part, by side, then by system
+    
+    for part in body:
+        for side in sides:
+            for system in systems:
+                
+                # joints from the bodypart bone group, by side
+                joints = [
+                        i for i in process.get_option(
+                        '%s'%part , group = 'Rig Bone Groups' ) 
+                        if i[-2:].find('_%s'% side ) != -1 and
+                        i.find('clavicle') == -1
+                        ]
+                # if leg, add feet jnts
+                if part.find('legs') != -1:
+                    
+                    for i in process.get_option('feet' , group = 'Rig Bone Groups' ):
+                        if i[-2:].find('_%s'% side ) != -1:
+                            joints.append(i)
+                        
+                # add hand to list  
+                elif part.find('arms') != -1:
+                    joints.append('JNT_%s_%s' % ( end_body[body.index(part)] , side) )
+                                   
+                # parent constraint from system jnt to the skinned jnt
+                for jnt in joints:
+                    if jnt.find('_twist') == -1 and jnt.find('_poleAngle') == -1:
+                        pc = cmds.parentConstraint(jnt.replace('JNT', system), jnt, mo=1)
+                        
+                        # connect to gear attrs
+                        
+                        gear = 'CNT_GEAR_%s_1_%s' % ( end_body[body.index(part)].upper(), side.upper() )
+                        if system is 'IK':
+                            weight_index = '.w0'
+                            attr.connect_reverse('%s.ikFkSwitch' % gear , '%s%s' % ( pc[0] , weight_index ) )
+                        elif system is 'FK':
+                            weight_index = '.w1'
+                            cmds.connectAttr('%s.ikFkSwitch' % gear , '%s%s' % ( pc[0] , weight_index ) )
+                
+    
+    
+    return

@@ -1,0 +1,30 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    # vars
+    
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    
+    joints = [
+    i for i in process.get_option('legs', group = 'Rig Bone Groups') 
+    if i.find('_l') != -1 ,
+    'JNT_foot_l'
+    ]
+    subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    subCog = 'CNT_SUB_COG_1_C'
+    
+    leg = rigs.IkLegRig('Leg', 'L')
+    leg.set_joints(joints)
+    leg.set_top_control_as_locator(True)
+    leg.set_create_twist(True)
+    
+    leg.create()
+    leg.set_control_parent( subCog )
+    leg.set_setup_parent( setupGrp )
+    
+    
+    return

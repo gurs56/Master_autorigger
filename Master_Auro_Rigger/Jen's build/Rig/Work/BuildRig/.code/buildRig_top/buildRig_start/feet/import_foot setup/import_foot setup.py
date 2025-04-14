@@ -1,0 +1,8 @@
+
+def main():
+    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    footRoll_locs = process.import_data('foot setup')
+    
+    #cmds.parent( footRoll_locs , setupGrp )
+    

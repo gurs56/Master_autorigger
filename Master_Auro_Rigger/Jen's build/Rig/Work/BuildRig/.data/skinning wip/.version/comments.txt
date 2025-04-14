@@ -1,0 +1,6 @@
+
+version = 1; comment = "file with skinning wip and ngskintools 2"; user = "Jenny"
+version = 2; comment = "ng layers don't save, just wip"; user = "Jenny"
+version = 3; comment = "wip"; user = "Jenny"
+version = 4; comment = "weeeep"; user = "Jenny"
+version = 5; comment = "weep"; user = "Jenny"

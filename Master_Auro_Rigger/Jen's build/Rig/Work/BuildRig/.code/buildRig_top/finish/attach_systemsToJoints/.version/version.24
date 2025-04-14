@@ -1,0 +1,57 @@
+
+def main():
+    
+    systems = ['IK', 'FK']
+    
+    body = ['legs', 'arms']
+    sides = ['l', 'r']
+    #rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    #controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    #setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )
+    #subGround2 = process.get_option('sub ground 2', group = 'Groups')
+    #subCog = 'CNT_SUB_COG_C'
+    #hips = 'CNT_SUB_HIPS_C'
+    
+    #IK FK connection to body parts by part, by side, then by system
+    
+    for part in body:
+        for side in sides:
+            for system in systems:
+                
+                joints = [
+                        i for i in process.get_option(
+                        '%s'%part , group = 'Rig Bone Groups' ) 
+                        if i[-2:].find('_%s'% side ) != -1
+                        ]
+                        
+                        
+                if part.find('legs') != -1:
+                    joints.append('JNT_foot_%s' % side)
+                    
+                elif part.find('arms') != -1:
+                    joints.append('JNT_hand_%s' % side)
+                
+                '''        
+                sys_joints = [
+                        i for i in process.get_option(
+                        '%s %s'% ( system , part ) , group = 'Rig Bone Groups' ) 
+                        if i[-3:-1].find('_%s'% side ) != -1
+                        ]
+                
+                '''
+                #print joints
+                #print sys_joints
+                if joints:
+                    process.get_option('type')
+                    
+                    for jnt in joints:
+                        if jnt.find('_twist') == -1 and jnt.find('_poleAngle') == -1:
+                            #jnt_index = joints.index(jnt)
+                            #sys_jnt = sys_joints[jnt_index]
+                            cmds.parentConstraint(jnt.replace('JNT', system), jnt)
+                else:
+                    process.get_option('type')
+        
+    
+    
+    return

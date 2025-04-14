@@ -1,0 +1,154 @@
+[
+    [
+        "Asset Options.",
+        true
+    ],
+    [
+        "Asset Options.type",
+        "Character"
+    ],
+    [
+        "Asset Options.name",
+        "CHA_Satya"
+    ],
+    [
+        "Rig Bone Groups.",
+        true
+    ],
+    [
+        "Rig Bone Groups.root",
+        "JNT_root"
+    ],
+    [
+        "Rig Bone Groups.pelvis",
+        "JNT_pelvis"
+    ],
+    [
+        "Rig Bone Groups.spine",
+        "JNT_spine_01, JNT_spine_02, JNT_spine_03, JNT_spine_04, JNT_spine_05, JNT_neck_01, JNT_neck_02, JNT_head"
+    ],
+    [
+        "Rig Bone Groups.legs",
+        "JNT_thigh_l, JNT_thigh_twist_01_l, JNT_thigh_twist_02_l, JNT_calf_l, JNT_calf_twist_02_l, JNT_calf_twist_01_l, JNT_thigh_r, JNT_thigh_twist_01_r, JNT_thigh_twist_02_r, JNT_calf_r, JNT_calf_twist_02_r, JNT_calf_twist_01_r"
+    ],
+    [
+        "Rig Bone Groups.feet",
+        "JNT_foot_l, JNT_ball_l, JNT_toe_l, JNT_foot_r, JNT_ball_r, JNT_toe_r"
+    ],
+    [
+        "Rig Bone Groups.arms",
+        "JNT_clavicle_l, JNT_upperarm_l, JNT_upperarm_twist_01_l, JNT_upperarm_twist_02_l, JNT_lowerarm_l, JNT_lowerarm_twist_02_l, JNT_lowerarm_twist_01_l, JNT_clavicle_r, JNT_upperarm_r, JNT_upperarm_twist_01_r, JNT_upperarm_twist_02_r, JNT_lowerarm_r, JNT_lowerarm_twist_02_r, JNT_lowerarm_twist_01_r"
+    ],
+    [
+        "Rig Bone Groups.hands",
+        "JNT_hand_l, JNT_hand_r"
+    ],
+    [
+        "Rig Bone Groups.fingers",
+        "JNT_middle_metacarpal_l, JNT_middle_01_l, JNT_middle_02_l, JNT_middle_03_l, JNT_pinky_metacarpal_l, JNT_pinky_01_l, JNT_pinky_02_l, JNT_pinky_03_l, JNT_ring_metacarpal_l, JNT_ring_01_l, JNT_ring_02_l, JNT_ring_03_l, JNT_thumb_01_l, JNT_thumb_02_l, JNT_thumb_03_l, JNT_index_metacarpal_l, JNT_index_01_l, JNT_index_02_l, JNT_index_03_l, JNT_middle_metacarpal_r, JNT_middle_01_r, JNT_middle_02_r, JNT_middle_03_r, JNT_pinky_metacarpal_r, JNT_pinky_01_r, JNT_pinky_02_r, JNT_pinky_03_r, JNT_ring_metacarpal_r, JNT_ring_01_r, JNT_ring_02_r, JNT_ring_03_r, JNT_thumb_01_r, JNT_thumb_02_r, JNT_thumb_03_r, JNT_index_metacarpal_r, JNT_index_01_r, JNT_index_02_r, JNT_index_03_r"
+    ],
+    [
+        "Rig Bone Groups.IK arms",
+        "IK_upperarm_l, IK_lowerarm_l, IK_hand_l, IK_upperarm_r, IK_lowerarm_r, IK_hand_r"
+    ],
+    [
+        "Rig Bone Groups.IK legs",
+        "IK_thigh_l, IK_calf_l, IK_foot_l, IK_thigh_r, IK_calf_r, IK_foot_r"
+    ],
+    [
+        "Rig Bone Groups.FK arms",
+        "FK_upperarm_l, FK_lowerarm_l, FK_hand_l, FK_upperarm_r, FK_lowerarm_r, FK_hand_r"
+    ],
+    [
+        "Rig Bone Groups.FK legs",
+        "FK_thigh_l, FK_calf_l, FK_foot_l, FK_ball_l, FK_thigh_r, FK_calf_r, FK_foot_r, FK_ball_r"
+    ],
+    [
+        "Rig Bone Groups.sparseJnt_geoFollow_dict",
+        [
+            [
+                {
+                    "JNT_backpack_c":"BODY",
+                    "JNT_commsCover_l":"COMNS",
+                    "key1":""
+                },
+                [
+                    "JNT_backpack_c",
+                    "JNT_commsCover_l",
+                    "key1"
+                ]
+            ],
+            "dictionary"
+        ]
+    ],
+    [
+        "Rig Bone Groups.sparseJnt_parentCnt_dict",
+        [
+            [
+                {
+                    "JNT_backpackZipper_l":"CNT_SUB_BACKPACK_1_C",
+                    "JNT_backpack_c":"CNT_SUB_SPINE_3_C",
+                    "JNT_calfJet_l":"CNT_SUB_HIPS_C",
+                    "JNT_calfJet_r":"CNT_SUB_HIPS_C",
+                    "JNT_commsCover_l":"CNT_CLAVICLE_1_L",
+                    "JNT_gasTank_c":"CNT_SUB_COG_C",
+                    "key2":"CNT_SUB_BACKPACK_1_C"
+                },
+                [
+                    "JNT_backpack_c",
+                    "JNT_commsCover_l",
+                    "JNT_gasTank_c",
+                    "JNT_backpackZipper_l",
+                    "JNT_calfJet_l",
+                    "JNT_calfJet_r",
+                    "key2"
+                ]
+            ],
+            "dictionary"
+        ]
+    ],
+    [
+        "Groups.",
+        true
+    ],
+    [
+        "Groups.asset Grp",
+        "CHA_Satya_Grp"
+    ],
+    [
+        "Groups.all Grp",
+        "All_Grp"
+    ],
+    [
+        "Groups.model Grp",
+        "Model_Grp"
+    ],
+    [
+        "Groups.rig Grp",
+        "Rig_Grp"
+    ],
+    [
+        "Groups.structure Grp",
+        "Structure_Grp"
+    ],
+    [
+        "Groups.setup Grp",
+        "Setup_Grp"
+    ],
+    [
+        "Groups.controls Grp",
+        "Controls_Grp"
+    ],
+    [
+        "Groups.ground",
+        "CNT_GROUND_1"
+    ],
+    [
+        "Groups.sub ground 1",
+        "CNT_SUB_GROUND_1"
+    ],
+    [
+        "Groups.sub ground 2",
+        "CNT_SUB_GROUND_2"
+    ]
+]

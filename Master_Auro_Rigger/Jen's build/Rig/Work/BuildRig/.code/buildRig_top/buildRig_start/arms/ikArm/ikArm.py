@@ -1,0 +1,81 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+def main():
+    
+    # vars
+    sides = ['l', 'r']
+    rigGrp = process.get_option( 'rig Grp' , group = 'Groups' )
+    controlsGrp = process.get_option( 'controls Grp' , group = 'Groups' )    
+    setupGrp = process.get_option( 'setup Grp' , group = 'Groups' )    
+    '''
+    joints = [
+    i for i in process.get_option('arms', group = 'Rig Bone Groups') 
+    if i.find('_l') != -1 
+    and i.find('_clavicle_') == -1
+    and i.find('_twist_') == -1
+    ]
+    joints.append('JNT_hand_l')
+    '''
+    for side in sides:
+        # ik arm setup
+        joints = [
+                i for i in process.get_option( 'IK arms' , 
+                group = 'Rig Bone Groups' ) 
+                if i.find('%s_%s'% ( i[:-2] , side )) != -1
+                ]
+                
+        subGround2 = process.get_option('sub ground 2', group = 'Groups')
+        subCog = 'CNT_SUB_COG_1_C'
+        clav = 'CNT_CLAVICLE_1_%s'%side.upper()
+        poleAngle_joints = [ joints[0], '%s_poleAngle'%joints[1], joints[1]]
+        
+        
+        arm = rigs.IkAppendageRig('ik_Arm', side)
+        arm.set_joints(joints)
+        arm.set_control_offset_axis('z')
+        arm.set_control_size(6)
+        #arm.set_create_twist(True)
+        arm.set_create_stretchy(True)
+        #arm.set_pole_offset(-90)
+        arm.set_pole_angle_joints(poleAngle_joints)
+        
+        if side.find('r') != -1:
+            arm.set_negate_right_scale(True,scale_x=-1,scale_y=1,scale_z=1)
+        #arm.set_orient_constrain(True)
+        arm.set_create_world_switch(False)
+        #arm.set_top_control_as_locator(True)
+        #arm.set_match_btm_to_joint(True)
+        #arm.set_create_top_control(True)
+        #arm.set_create_ik_buffer_joint(True)
+        #arm.set_solver_type(solver_name)
+        #arm.set_stretch_axis('x')
+        '''
+        arm.set_stretch_type(stretch_type_int)
+        '''
+        #arm.set_pole_follow_transform('CNT_GROUND_1', 0)
+        #arm.set_pole_follow_transform('CNT_SUB_SPINE_3_C', 0)
+        #arm.set_pole_follow_transform('CNT_ARM_BTM_1_L', 0)
+        
+        arm.create()
+        arm.set_control_parent( clav )
+        arm.set_setup_parent( setupGrp )
+        
+        # fix some attrs
+        cmds.setAttr('CNT_IK_ARM_BTM_1_%s.poleVisibility'%side.upper(), 1 )
+        cmds.setAttr('CNT_IK_ARM_BTM_1_%s.autoTwist'%side.upper(), .5 )
+        
+        # delete extras:
+        cmds.delete('IK_lowerarm_%s_poleAngle' % side)
+        cmds.delete('guideLineGroup_ik_Arm_1_%s' % side.upper())
+        
+        # connect vis to gear attr
+        
+        gear = 'CNT_GEAR_HAND_1_%s' % side.upper()
+        hide_items = ['controls_ik_Arm_1_%s' % side.upper(), 'xform_CNT_IK_ARM_BTM_1_%s' % side.upper()]
+        for hide in hide_items:
+            
+            attr.connect_reverse('%s.ikFkSwitch' % gear,'%s.v' % hide)
+            
+    return
