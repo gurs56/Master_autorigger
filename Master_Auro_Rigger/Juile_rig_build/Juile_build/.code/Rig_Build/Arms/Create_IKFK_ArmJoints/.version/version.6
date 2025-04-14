@@ -1,0 +1,31 @@
+import maya.cmds as cmds
+
+def main():
+
+# Full list of joints
+    ArmJoints = cmds.ls(type='joint')
+      
+    # Target joint names to look for
+    target_names = ["JNT_upperarm", "JNT_lowerarm", "JNT_hand"]
+    
+    LArmJoints = []
+    RArmJoints = []
+
+    ik_joints = []
+    fk_joints = []
+    
+    # Loop through all joints and check for matches
+    for joint in ArmJoints:
+        if "twist" not in joint:
+            for target in target_names:
+                if target in joint:
+                    if joint.endswith("_l"):
+                        LArmJoints.append(joint)
+                    elif joint.endswith("_r"):
+                        RArmJoints.append(joint)
+
+    # Print results for debugging
+    print("Left Arm Joints: {}".format(LArmJoints))
+    print("Right Arm Joints: {}".format(RArmJoints))
+
+    return

@@ -1,0 +1,110 @@
+[
+    [
+        "Juile_Auto_Rigger",
+        null
+    ],
+    [
+        "Joint_Input",
+        null
+    ],
+    [
+        "Joint.",
+        true
+    ],
+    [
+        "Joint.Root",
+        "JNT_root"
+    ],
+    [
+        "Joint.Hip",
+        "JNT_pelvis"
+    ],
+    [
+        "Joint.Spine",
+        "JNT_spine_01, JNT_spine_02, JNT_spine_03, JNT_spine_04, JNT_spine_05, JNT_neck_01, JNT_neck_02, JNT_head"
+    ],
+    [
+        "Joint.Arms",
+        "JNT_clavicle_l, JNT_clavicle_r"
+    ],
+    [
+        "Joint.Arm_L",
+        "JNT_upperarm_l, JNT_lowerarm_l, JNT_hand_l"
+    ],
+    [
+        "Joint.Arm_R",
+        "JNT_upperarm_r, JNT_lowerarm_r, JNT_hand_r"
+    ],
+    [
+        "Joint.Fingers",
+        "JNT_thumb_01_l, JNT_thumb_02_l, JNT_thumb_03_l, JNT_index_metacarpal_l, JNT_index_01_l, JNT_index_02_l, JNT_index_03_l, JNT_middle_metacarpal_l, JNT_middle_01_l, JNT_middle_02_l, JNT_middle_03_l, JNT_ring_metacarpal_l, JNT_ring_01_l, JNT_ring_02_l, JNT_ring_03_l, JNT_pinky_metacarpal_l, JNT_pinky_01_l, JNT_pinky_02_l, JNT_pinky_03_l, JNT_thumb_01_r, JNT_thumb_02_r, JNT_thumb_03_r, JNT_index_metacarpal_r, JNT_index_01_r, JNT_index_02_r, JNT_index_03_r, JNT_middle_metacarpal_r, JNT_middle_01_r, JNT_middle_02_r, JNT_middle_03_r, JNT_ring_01_r, JNT_ring_metacarpal_r, JNT_ring_02_r, JNT_ring_03_r, JNT_pinky_metacarpal_r, JNT_pinky_01_r, JNT_pinky_02_r, JNT_pinky_03_r"
+    ],
+    [
+        "Joint.Leg_L",
+        "JNT_thigh_l, JNT_calf_l, JNT_foot_l"
+    ],
+    [
+        "Joint.Leg_R",
+        "JNT_thigh_r, JNT_calf_r, JNT_foot_r"
+    ],
+    [
+        "Joint.Foot_L",
+        "JNT_foot_l, JNT_ball_l, JNT_toe_l"
+    ],
+    [
+        "Joint.Foot_R",
+        "JNT_foot_r, JNT_ball_r, JNT_toe_r"
+    ],
+    [
+        "Joint.Hair",
+        "JNT_hair_01, JNT_hair_02, JNT_hair_03, JNT_hair_04, JNT_hair_05, JNT_hair_06, JNT_hair_07"
+    ],
+    [
+        "Joint.IKFK.",
+        true
+    ],
+    [
+        "Joint.IKFK.FK_Arm",
+        "JNT_FK_upperarm_l, JNT_FK_lowerarm_l, JNT_FK_hand_l, JNT_FK_upperarm_r, JNT_FK_lowerarm_r, JNT_FK_hand_r"
+    ],
+    [
+        "Joint.IKFK.IK_Arm",
+        "JNT_IK_upperarm_l, JNT_IK_lowerarm_l, JNT_IK_hand_l, JNT_IK_upperarm_r, JNT_IK_lowerarm_r, JNT_IK_hand_r"
+    ],
+    [
+        "Joint.IKFK.FK_Leg",
+        "JNT_FK_thigh_l, JNT_FK_calf_l, JNT_FK_foot_l, JNT_FK_ball_l, JNT_FK_toe_l, JNT_FK_thigh_r, JNT_FK_calf_r, JNT_FK_foot_r, JNT_FK_ball_r, JNT_FK_toe_r"
+    ],
+    [
+        "Joint.IKFK.IK_Leg",
+        "JNT_IK_thigh_l, JNT_IK_calf_l, JNT_IK_foot_l, JNT_IK_ball_l, JNT_IK_toe_l, JNT_IK_thigh_r, JNT_IK_calf_r, JNT_IK_foot_r, JNT_IK_ball_r, JNT_IK_toe_r"
+    ],
+    [
+        "Joint.Face.",
+        true
+    ],
+    [
+        "Joint.Face.Eyes",
+        ""
+    ],
+    [
+        "Groups.",
+        true
+    ],
+    [
+        "Groups.Joint_grp",
+        "Joints_Group"
+    ],
+    [
+        "Groups.Geo_grp",
+        "Geo_Group"
+    ],
+    [
+        "Groups.Ctrl_grp",
+        "Control_Group"
+    ],
+    [
+        "Groups.RigParts",
+        "RigParts"
+    ]
+]

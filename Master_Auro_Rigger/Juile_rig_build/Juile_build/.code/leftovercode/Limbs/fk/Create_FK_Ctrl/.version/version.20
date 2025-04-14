@@ -1,0 +1,84 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    # List of sides
+    sides = ['l', 'r']
+    
+    # Loop for Arms
+    for arm in sides:
+        # Find FK Arm joints for the current side
+        FKArm = [
+            i for i in process.get_option("FK_Arm", group="IKFK")
+            if i.endswith('_%s' % arm)  # Ensure the name ends with the correct side
+        ]
+        
+        # Debugging: Print the joints for the current side
+        print("Found FK Arm Joints for side '%s': %s" % (arm, FKArm))
+        
+        # Skip if no joints are found for the current side
+        if not FKArm:
+            cmds.warning("No FK Arm joints found for side '%s'!" % arm)
+            continue
+
+        # Create FK rig for the arm
+        ArmRig = rigs.FkRig("FK_Arm", arm)  # Pass the correct side (arm) here
+        ArmRig.set_joints(FKArm)
+        ArmRig.set_control_size(8)
+        ArmRig.set_control_offset_axis("z")
+        ArmRig.delete_setup()
+        ArmRig.create()
+
+    # Loop for Legs
+    for leg in sides:
+        # Find FK Leg joints for the current side
+        FKLeg = [
+            i for i in process.get_option("FK_Leg", group="IKFK")
+            if i.endswith('_%s' % leg)  # Ensure the name ends with the correct side
+        ]
+        
+        # Debugging: Print the joints for the current side
+        print("Found FK Leg Joints for side '%s': %s" % (leg, FKLeg))
+        
+        # Skip if no joints are found for the current side
+        if not FKLeg:
+            cmds.warning("No FK Leg joints found for side '%s'!" % leg)
+            continue
+        
+        # Create FK rig for the leg
+        LegRig = rigs.FkRig("FK_Leg", leg)  # Pass the correct side (leg) here
+        LegRig.set_joints(FKLeg)
+        LegRig.set_control_size(8)
+        LegRig.set_control_offset_axis("z")
+        LegRig.delete_setup()
+        LegRig.create()
+        
+        
+        switch = ["L_Leg_SWITCH", "R_Leg_SWITCH", "L_Arm_SWITCH", "R_Arm_SWITCH"]
+        FKparentGrp = ["controls_FK_Arm_1_L", "controls_FK_Arm_1_R", "controls_FK_Leg_1_L", "controls_FK_Leg_1_R"]
+        # Debugging: Print found groups
+        for s in switch:
+            print("Switch list: {}".format(s))
+                
+        if joints_grp and cmds.objExists(joints_grp):
+                print("Connecting {}.Joints_Vis to {}.visibility".format(group_name, joints_grp))
+                cmds.connectAttr("{}.Joints_Vis".format(group_name), "{}.visibility".format(joints_grp))
+        
+            """
+            if joints_grp and cmds.objExists(joints_grp):
+                print("Connecting {}.Joints_Vis to {}.visibility".format(group_name, joints_grp))
+                cmds.connectAttr("{}.Joints_Vis".format(group_name), "{}.visibility".format(joints_grp))
+            
+            
+            geaLeg = 'CNT_GEAR_FOOT_1_%s' % side.upper()
+            hide_items = ["controls_FK_Arm_1_L%s" % side.upper()]
+            for hide in hide_items:
+                cmds.connectAttr('%s.ikFkSwitch' % gear,'%s.v' % hide)
+                
+            gearArm = 'CNT_GEAR_FOOT_1_%s' % side.upper()
+            hide_items = ['controls_FK_Leg_1_%s' % side.upper()]
+            for hide in hide_items:
+                cmds.connectAttr('%s.ikFkSwitch' % gear,'%s.v' % hide)
+            """
+
+    return

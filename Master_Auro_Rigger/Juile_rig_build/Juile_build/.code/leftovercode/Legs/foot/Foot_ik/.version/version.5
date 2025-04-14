@@ -1,0 +1,22 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import space
+from vtool.maya_lib import geo
+
+def loc():
+
+    for side in ['L','R']:
+
+        locator_foot = cmds.spaceLocator( n = 'locator_foot_%s' % side )[0]
+        space.MatchSpace('JNT_foot_%s' % side, locator_foot).translation_rotation()
+        
+        cmds.parent(locator_foot, 'RigParts')
+
+def main():
+    
+    # Retrieve the joints for the left leg from the process options
+    joints = process.get_option("Foot_L", group="Joint")
+    
+    rig = rigs.FootRig('ik_foot')
+    rig.set_joints(joints)
+    #rig.set_no_ball(True)   

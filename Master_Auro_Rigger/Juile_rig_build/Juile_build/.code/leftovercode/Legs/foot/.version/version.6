@@ -1,0 +1,30 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    """
+     # Retrieve the group for rig parts
+    rigparts = process.get_option("RigParts", group="Groups")
+    
+    # Loop through both sides
+    for side in ['L', 'R']:
+        # Retrieve the foot joints for the current side
+        foot_options = process.get_option("Foot_%s" % side.upper(), group="Joint")
+        
+        if foot_options and len(foot_options) >= 3:  # Ensure there are at least 3 joints
+            foot_joint = foot_options[0]
+            ball_joint = foot_options[1]
+            toe_joint = foot_options[2]
+            print("Foot joint for side {}: {}".format(side, foot_joint))
+        else:
+            print("No sufficient foot options found for side {}.".format(side))
+            continue  # Skip to the next side if no options are found or valid
+        
+        # Create and position locator for the foot
+        locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side.upper())[0]
+        space.MatchSpace(foot_joint, locator_foot).translation_rotation()
+        cmds.parent(locator_foot, rigparts)
+       """
+    return

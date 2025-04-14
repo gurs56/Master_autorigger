@@ -1,0 +1,38 @@
+from vtool.maya_lib import rigs
+
+setup_group = "RigParts"
+control_size = 1.0
+sub_vis = True
+stretch = False
+
+def main():
+
+    for side in ['l','r']:
+        create_ik_foot(side)
+
+def create_ik_foot(side):
+
+    joints = ['locator_foot_%s' % side,
+                'JNT_ball_%s' % side,
+                'JNT_toe_%s' % side, ]
+
+    rig = rigs.FootRig('foot', side)
+    rig.set_joints(joints)
+    #rig.set_attribute_control('CNT_LEG_BTM_1_%s' % side) 
+    rig.set_pivot_locators(
+            'Heel_%s_Loc' % side.upper(),
+            'BallYawIn_%s_Loc' % side.upper(),
+            'BallYawOut_%s_Loc' % side.upper()
+            )
+    rig.set_ik_parent('JNT_foot_%s_1' % side)
+    rig.set_ik_leg([
+            'xform_offset_CNT_SUB_LEG_BTM_1_%s' % side.upper(),
+            'xform_ikHandle_leg_1_%s' % side.upper()]
+            )
+    rig.set_buffer(True)
+    rig.set_control_shape('square')
+    rig.set_control_size(control_size)
+    rig.create()
+    
+    #rig.set_control_parent('CNT_SUB_LEG_BTM_1_%s' % side)
+    rig.set_setup_parent(setup_group)

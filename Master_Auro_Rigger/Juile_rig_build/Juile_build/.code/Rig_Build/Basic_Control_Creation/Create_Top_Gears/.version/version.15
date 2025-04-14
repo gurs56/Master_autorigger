@@ -1,0 +1,64 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def find_group(name_part):
+    """
+    Find a group in the scene that contains the specified string in its name.
+    """
+    groups = cmds.ls(type="transform")  # List all transform nodes
+    print("All found groups:", groups)  # Print all groups to debug
+    for grp in groups:
+        if name_part.lower() in grp.lower() and cmds.listRelatives(grp, children=True):  # Check if it's a group with children
+            print(f"Group found: {grp}, children: {cmds.listRelatives(grp, children=True)}")
+            return grp
+    print(f"No group found for: {name_part}")
+    return None
+
+def main():
+    
+    # Create Gear control and turn off controls
+    gear = rigs_util.Control('Rig_Settings')
+    gear.set_curve_type('gear')
+    gear.color(22)
+    xform = gear.create_xform(prefix='xform')    
+    gear.hide_attributes(attributes=None)
+    group_name = gear.get()
+
+    # Add custom attributes for visibility control
+    cmds.addAttr(group_name, longName='Joints_Vis', attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(group_name, longName='Controls_Vis', attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(group_name, longName='Geo_Vis', attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(group_name, longName='Face_Vis', attributeType='bool', defaultValue=True, keyable=True)
+
+    # Find groups by partial names
+    joints_grp = find_group("Joints_Group")  
+    controls_grp = find_group("Control_Group") 
+    geo_grp = find_group("Geo_Group")
+    
+    # Debugging: Print found groups
+    print(f"Joints Group: {joints_grp}")
+    print(f"Controls Group: {controls_grp}")
+    print(f"Geo Group: {geo_grp}")
+    
+    # Explicitly check if the groups exist using cmds.objExists()
+    if joints_grp and cmds.objExists(joints_grp):
+        print(f"Connecting {group_name}.Joints_Vis to {joints_grp}.visibility")
+        cmds.connectAttr(f'{group_name}.Joints_Vis', f'{joints_grp}.visibility')
+    else:
+        print(f"Joints group not found: {joints_grp}")
+        
+    if controls_grp and cmds.objExists(controls_grp):
+        print(f"Connecting {group_name}.Controls_Vis to {controls_grp}.visibility")
+        cmds.connectAttr(f'{group_name}.Controls_Vis', f'{controls_grp}.visibility')
+    else:
+        print(f"Controls group not found: {controls_grp}")
+        
+    if geo_grp and cmds.objExists(geo_grp):
+        print(f"Connecting {group_name}.Geo_Vis to {geo_grp}.visibility")
+        cmds.connectAttr(f'{group_name}.Geo_Vis', f'{geo_grp}.visibility')
+    else:
+        print(f"Geo group not found: {geo_grp}")
+    
+    return
+

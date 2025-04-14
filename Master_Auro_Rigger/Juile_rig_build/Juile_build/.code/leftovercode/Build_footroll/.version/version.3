@@ -1,0 +1,17 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+
+def main():
+    
+     sides = ['l', 'r']
+    
+     for side in sides:
+        
+        #joints = ['IK_foot_%s'%side, 'IK_ball_%s'%side, 'IK_toe_%s'%side]
+    
+    foot_roll = rigs.FootRig('FootRoll',side=side)
+    
+    foot_roll.create()
+    
+    return

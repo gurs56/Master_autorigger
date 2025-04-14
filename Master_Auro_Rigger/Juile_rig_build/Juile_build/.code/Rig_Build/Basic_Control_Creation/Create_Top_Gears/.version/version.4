@@ -1,0 +1,15 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    
+    #Create Gear control and turn of controls
+    gear = rigs_util.Control( 'Rig_Settings' )
+    gear.set_curve_type( 'gear' )
+    gear.color(22)
+    xform = gear.create_xform( prefix = 'xform' )    
+    gear.hide_attributes( attributes = None )
+    g_name = gear.get()
+    
+    return

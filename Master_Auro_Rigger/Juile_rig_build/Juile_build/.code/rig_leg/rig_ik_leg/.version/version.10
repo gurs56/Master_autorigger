@@ -1,0 +1,49 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+# Define default options (adjust as needed)
+setup_group = "RigParts"
+control_size = 1.0
+sub_vis = True
+stretch = False
+
+def main():
+    for side in ['L', 'R']:
+        rig_ik_leg(side)
+
+def rig_ik_leg(side):
+    # Create an IK leg rig for the given side
+    rig = rigs.IkLegRig('leg', side)
+    rig.set_joints(['JNT_thigh_%s' % side.lower(), 'JNT_calf_%s' % side.lower(), 'JNT_foot_%s' % side.lower()])
+    rig.set_pole_offset(1.5)
+    rig.set_buffer(True)
+    rig.set_control_size(control_size)
+    rig.set_sub_visibility(sub_vis)
+    rig.set_create_stretchy(stretch)
+    rig.create()
+
+    # Rotate the top control's shape
+    control = rigs_util.Control(rig.top_control)
+    control.rotate_shape(0, 0, 90)
+
+    # Set control and setup parents
+    rig.set_control_parent('CNT_PELVIS_1_C')
+    rig.set_setup_parent(setup_group)
+    
+    cmds.setAttr('CNT_LEG_BTM_1_%s.autoTwist' % side.upper(), 1)
+
+    if stretch:
+        cmds.setAttr('CNT_LEG_BTM_1_%s.autoStretch' % side.upper(), 0)
+        cmds.setAttr('CNT_LEG_BTM_1_%s.dampen' % side.upper(), 1)
+
+    cmds.setAttr('CNT_LEG_BTM_1_%s.poleVisibility' % side.upper(), 1)
+    
+    """
+    space.create_multi_follow(['CNT_SUB_GROUND_2_C', 'CNT_LEG_TOP_1_%s' % side.upper()],
+                                'xform_CNT_LEG_BTM_1_%s' % side.upper(),
+                                'CNT_LEG_BTM_1_%s' % side.upper(),
+                                value=0)
+                                """
+

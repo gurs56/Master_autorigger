@@ -1,0 +1,31 @@
+from vtool.maya_lib import rigs
+
+def main():
+    # List of sides
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Find arm and hand joints for the current side
+        FKArm = [
+            i for i in process.get_option("FK_Arm", group="IKFK")
+            if '_%s' % side in i
+        ]
+        
+        # Debugging: Print the joints for the current side
+        print("Found FK Arm Joints for side '%s': %s" % (side, FKArm))
+        
+        # Skip if no joints are found for the current side
+        if not FKArm:
+            cmds.warning("No FK Arm joints found for side '%s'!" % side)
+            continue
+
+        # Create FK rig for the arm
+        ArmRig = rigs.FkRig("FK_Arm", side)
+        ArmRig.set_joints(FKArm)
+        ArmRig.set_control_size(6)
+        ArmRig.set_control_offset_axis("z")
+        ArmRig.delete_setup()
+        ArmRig.create()
+
+        
+    return

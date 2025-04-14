@@ -1,0 +1,11 @@
+import maya.cmds as cmds
+
+def main():
+    
+    upper = ["JNT_upperarm_l", "JNT_IK_upperarm_l", "JNT_IK_upperarm_r", "JNT_upperarm_r"]
+    lower = ["JNT_IK_lowerarm_l", "JNT_IK_lowerarm_r", "JNT_lowerarm_l"]
+    hand = []
+    
+    cmds.parent("JNT_IK_upperarm_l", "JNT_FK_upperarm_l", "JNT_upperarm_l")
+    
+    return

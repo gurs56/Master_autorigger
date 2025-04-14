@@ -1,0 +1,21 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    
+    joints = process.get_option('hip', group='Joint')
+    
+    cog_tempBone = cmds.duplicate(joints, po=1)[0]
+    tempCon = cmds.pointConstraint('JNT_pelvis', cog_tempBone)
+    
+    cog = rigs.SparseRig('COG', 'C')
+    cog.set_joints(tempCon)
+    cog.set_create_sub_control(True)
+    cog.set_sub_visibility(False)
+    cog.set_control_shape('outwardCirclePointer')
+    cog.set_control_size(6)
+    cmds.delete(tempCon[0])
+    cog.delete_setup()
+    cog.create()
+    return

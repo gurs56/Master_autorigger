@@ -1,0 +1,32 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    # Sides and base joint name
+    sides = ['l', 'r']
+    base_joint = "JNT_weapon"
+
+    # Loop through sides
+    for side in sides:
+        # Construct joint name
+        BladeJnt = "{}_{}".format(base_joint, side)
+
+        # Check if the joint exists
+        if not cmds.objExists(BladeJnt):
+            cmds.warning("Joint {} does not exist!".format(BladeJnt))
+            continue
+
+        # Create the rig
+        rig = rigs.FkRig("Blade_Cnt", side)
+        rig.set_joints([BladeJnt])
+        rig.set_create_sub_controls(True)
+        rig.set_control_size(15)
+        rig.set_control_offset_axis("z")
+        rig.set_control_shape("spinner")
+        rig.set_sub_control_shape("circle")
+        rig.set_sub_visibility(True)
+        rig.create()
+        rig.delete_setup()
+        rig.set_parent("CNT_ROOT_1_C")  # Adjust parent as needed
+
+    print "Blade rigging completed."

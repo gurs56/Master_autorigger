@@ -1,0 +1,63 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+from vtool.maya_lib import rigs_util
+
+rigparts = process.get_option("RigParts", group="Groups")
+
+#setup_group = process.get_option('Setup Group', 'Setup.Auto Rig Groups')
+#control_size = process.get_option('Control Size', 'Setup.Controls')
+#sub_vis = process.get_option('Sub Controls Visible', 'Setup.Controls')
+#stretch = process.get_option('Stretchy', 'Legs')
+
+
+def main():
+    
+    for side in ['l','r']:
+        rig_ik_leg(side)
+
+def rig_ik_leg(side):
+
+   
+    """
+    LegRig.set_joints(IKleg)
+    LegRig.set_control_offset_axis('z')
+    LegRig.set_control_size(6)
+    LegRig.set_control_shape("cube")
+    LegRig.set_create_stretchy(True)
+    LegRig.set_stretch_axis('x')
+    LegRig.set_create_world_switch(False)
+    LegRig.set_stretch_type(2)
+    #LegRig.set_pole_offset(-5)
+    #LegRig.set_pole_angle_joints(poleVac)
+    LegRig.set_buffer(True)
+    LegRig.create()
+    LegRig.set_setup_parent(RigParts)
+    """
+   
+    rig = rigs.IkLegRig('leg', side)
+    rig.set_joints(['JNT_thigh_%s' % side,'JNT_calf_%s' % side, 'JNT_foot_%s' % side])
+    rig.set_pole_offset(1.5)
+    rig.set_buffer(True)
+    rig.set_control_size(6)
+    #rig.set_sub_visibility(sub_vis)
+    rig.set_create_stretchy(True)
+    rig.create()
+
+    control = rigs_util.Control(rig.top_control)
+    control.rotate_shape(0,0,90)
+
+    rig.set_control_parent('CNT_PELVIS_1_C')
+    rig.set_setup_parent(setup_group)
+    
+    cmds.setAttr('CNT_LEG_BTM_1_%s.autoTwist' % side, 1)
+
+    if stretch:
+        cmds.setAttr('CNT_LEG_BTM_1_%s.autoStretch' % side, 0)
+        cmds.setAttr('CNT_LEG_BTM_1_%s.dampen' % side, 1)
+
+    cmds.setAttr('CNT_LEG_BTM_1_%s.poleVisibility' % side, 1)
+    
+    space.create_multi_follow(['CNT_SUB_GROUND_2_C', 'CNT_LEG_TOP_1_%s' % side],
+                                'xform_CNT_LEG_BTM_1_%s' % side, 
+                                'CNT_LEG_BTM_1_%s' % side, 
+                                value = 0)

@@ -1,0 +1,90 @@
+import maya.cmds as cmds
+
+def create_res_joints_lowercase():
+    """
+    Creates new lowercase "res" joints on top of these source nodes:
+
+    Source -> New Joint
+    ----------------------------------
+    JNT_foot_l  -> jnt_res_foot_l
+    JNT_ball_l  -> jnt_res_ball_l
+    JNT_toe_l   -> jnt_res_toe_l
+
+    JNT_foot_r  -> jnt_res_foot_r
+    JNT_ball_r  -> jnt_res_ball_r
+    JNT_toe_r   -> jnt_res_toe_r
+
+    BallYawIn_R_Loc  -> jnt_res_ballyawin_r
+    Heel_R_Loc       -> jnt_res_heel_r
+    BallYawOut_R_Loc -> jnt_res_ballyawout_r
+
+    BallYawIn_L_Loc  -> jnt_res_ballyawin_l
+    Heel_L_Loc       -> jnt_res_heel_l
+    BallYawOut_L_Loc -> jnt_res_ballyawout_l
+
+    Then parents any joint ending in _l under res_grp_l
+    and any joint ending in _r under res_grp_r.
+    """
+
+    # Ensure left/right groups exist
+    if not cmds.objExists("res_grp_l"):
+        cmds.group(em=True, name="res_grp_l")
+    if not cmds.objExists("res_grp_r"):
+        cmds.group(em=True, name="res_grp_r")
+
+    # (source_node, new_joint)
+    pairs = [
+        ('JNT_foot_l',    'jnt_res_foot_l'),
+        ('JNT_ball_l',    'jnt_res_ball_l'),
+        ('JNT_toe_l',     'jnt_res_toe_l'),
+        
+        ('JNT_foot_r',    'jnt_res_foot_r'),
+        ('JNT_ball_r',    'jnt_res_ball_r'),
+        ('JNT_toe_r',     'jnt_res_toe_r'),
+        
+        ('BallYawIn_R_Loc',  'jnt_res_ballyawin_r'),
+        ('Heel_R_Loc',       'jnt_res_heel_r'),
+        ('BallYawOut_R_Loc', 'jnt_res_ballyawout_r'),
+        
+        ('BallYawIn_L_Loc',  'jnt_res_ballyawin_l'),
+        ('Heel_L_Loc',       'jnt_res_heel_l'),
+        ('BallYawOut_L_Loc', 'jnt_res_ballyawout_l'),
+    ]
+
+    for source_node, new_jnt_name in pairs:
+
+        # 1. Ensure the source node exists in the scene
+        if not cmds.objExists(source_node):
+            cmds.warning("Skipping '%s' - source node doesn't exist." % source_node)
+            continue
+
+        # 2. Delete any existing joint with the same name
+        if cmds.objExists(new_jnt_name):
+            cmds.delete(new_jnt_name)
+
+        # 3. Create the new joint
+        created_jnt = cmds.createNode("joint", name=new_jnt_name)
+
+        # 4. Match transforms (position, rotation, orientation)
+        pos = cmds.xform(source_node, q=True, ws=True, t=True)
+        rot = cmds.xform(source_node, q=True, ws=True, ro=True)
+        cmds.xform(created_jnt, ws=True, t=pos)
+        cmds.xform(created_jnt, ws=True, ro=rot)
+
+        # Parent constraint trick to match local orientation
+        tmp_cst = cmds.parentConstraint(source_node, created_jnt, mo=False)
+        cmds.delete(tmp_cst)
+
+        # 5. Parent under the correct group
+        if created_jnt.endswith('_l'):
+            cmds.parent(created_jnt, 'res_grp_l')
+        elif created_jnt.endswith('_r'):
+            cmds.parent(created_jnt, 'res_grp_r')
+
+        print "Created '%s' on top of '%s'." % (created_jnt, source_node)
+
+def main():
+    create_res_joints_lowercase()
+
+if __name__ == '__main__':
+    main()

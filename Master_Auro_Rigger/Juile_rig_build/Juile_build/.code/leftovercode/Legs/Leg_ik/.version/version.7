@@ -1,0 +1,26 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import space
+from vtool.maya_lib import geo
+
+def main():
+    # Retrieve the joints for the left leg from the process options
+    joints = process.get_option("Leg_L", group="Joint")
+    
+    size = 1.5  # Replace with your actual size variable if it's defined elsewhere
+    
+    # Initialize the IK Appendage Rig
+    rig = rigs.IkAppendageRig('ik_leg', 'L')  # Assuming 'L' is the side for this example
+    rig.set_joints(joints)
+    
+    # Configure rig settings
+    rig.set_control_size(size * 15)
+    rig.set_buffer(True)
+    rig.set_stretch_axis('Y')
+    rig.set_stretch_type(2)
+    rig.set_create_ik_buffer_joint(False)
+    rig.set_pole_offset(size * 1)
+    rig.set_pole_control_shape('cube')
+    
+    # Create the rig
+    rig.create()

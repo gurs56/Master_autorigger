@@ -1,0 +1,26 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import space
+from vtool.maya_lib import geo
+
+def main():
+    
+    joints = process.get_option("Leg_L", group="Joint"):
+        
+        rig = rigs.IkAppendageRig('ik_leg',side)
+        rig.set_joints(joints)
+        
+        rig.set_control_size(size*15)
+        rig.set_buffer(True)
+        rig.set_stretch_axis('Y')
+        rig.set_stretch_type(2)
+        rig.set_create_ik_buffer_joint(False)
+        rig.set_pole_offset(size * 1)
+        rig.set_pole_control_shape('sphere')
+        rig.connect_sub_visibility('%s.subVisibility' % put.control_settings)
+        rig.set_pole_follow_transform([put.control_ground[-1],put.control_root[-1]],1)
+        
+        rig.create()
+        
+    
+    return

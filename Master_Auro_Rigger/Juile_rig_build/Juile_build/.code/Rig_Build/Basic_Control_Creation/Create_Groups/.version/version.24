@@ -1,0 +1,22 @@
+import maya.cmds as cmds
+from vtool.maya_lib import core
+
+import maya.cmds as cmds
+
+def create_and_parent_groups():
+    # Create a master group
+    master_group = cmds.group(em=True, name="MasterGroup")
+    
+    # List of group names
+    group_names = ["Group1", "Group2", "Group3"]
+    
+    # Loop through the list of names and create groups
+    for name in group_names:
+        # Create an empty group with the specified name
+        new_group = cmds.group(em=True, name=name)
+        
+        # Parent the new group to the master group
+        cmds.parent(new_group, master_group)
+        print("Created and parented group:", name)
+   
+    return

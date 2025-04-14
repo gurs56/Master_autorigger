@@ -1,0 +1,28 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    
+    gears = ["L_Leg_SWITCH", "R_Leg_SWITCH", "L_Arm_SWITCH", "R_Arm_SWITCH"]
+    ikfk = "IKFK_SWITCH"
+    parent_control = "CNT_SUB_WORLD_2"  # Parent control name
+    
+   # Loop through each gear name and create a control
+    for gear_name in gears:
+        # Initialize the control
+        gear = rigs_util.Control(gear_name)
+        gear.set_curve_type('gear')
+        gear.color(22)
+        xform = gear.create_xform(prefix='xform')
+        gear.hide_attributes(attributes=None)
+        
+        # Add IK/FK switch attribute
+        cmds.addAttr(gear_name, longName=ikfk, attributeType='float', minValue=0, maxValue=1, defaultValue=0, keyable=True)
+        
+        # Parent the control under the specified parent control
+        cmds.parent(xform, parent_control)
+        
+        print("Created control {} with IK/FK switch attribute.".format(gear_name))
+    
+    return

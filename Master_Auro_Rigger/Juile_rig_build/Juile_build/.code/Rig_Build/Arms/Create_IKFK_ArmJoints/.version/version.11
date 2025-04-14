@@ -1,0 +1,55 @@
+import maya.cmds as cmds
+
+def duplicate_joints(joint_list, suffix, joint_storage):
+    """
+    Duplicate joints and store them in the provided list.
+    
+    :param joint_list: List of joints to duplicate.
+    :param suffix: Suffix to append to the duplicated joint names (e.g., "_IK" or "_FK").
+    :param joint_storage: List to store the duplicated joint names.
+    :return: None
+    """
+    for joint in joint_list:
+        if cmds.objExists(joint):
+            # Duplicate the joint, keeping its position and orientation
+            dup_joint = cmds.duplicate(joint, name=joint.replace("JNT", "JNT" + suffix), po=True)[0]
+            joint_storage.append(dup_joint)
+        else:
+            cmds.warning("Joint '{}' does not exist!".format(joint))
+            
+def main():
+
+# Full list of joints
+    ArmJoints = cmds.ls(type='joint')
+      
+    # Target joint names to look for
+    target_names = ["JNT_upperarm", "JNT_lowerarm", "JNT_hand"]
+    
+    LArmJoints = []
+    RArmJoints = []
+
+    ik_joints = []
+    fk_joints = []
+    
+    # Loop through all joints and check for matches
+    for joint in ArmJoints:
+        if "twist" not in joint:
+            for target in target_names:
+                if target in joint:
+                    if joint.endswith("_l"):
+                        LArmJoints.append(joint)
+                    elif joint.endswith("_r"):
+                        RArmJoints.append(joint)
+
+    # Print results for debugging
+    print("Left Arm Joints: {}".format(LArmJoints))
+    print("Right Arm Joints: {}".format(RArmJoints))
+    
+    
+    duplicate_joints(LArmJoints, "_IK", ik_joints)
+    duplicate_joints(LArmJoints, "_FK", fk_joints)
+    duplicate_joints(RArmJoints, "_IK", ik_joints)
+    duplicate_joints(RArmJoints, "_FK", fk_joints)
+    
+
+    return

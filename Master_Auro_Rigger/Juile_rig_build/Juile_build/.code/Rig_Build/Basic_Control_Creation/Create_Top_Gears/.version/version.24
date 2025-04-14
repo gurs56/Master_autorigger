@@ -1,0 +1,55 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def find_group(name_part):
+    
+    #Find a group in the scene that contains the specified string in its name.
+    
+    groups = cmds.ls(type="transform")  # List all transform nodes
+    for grp in groups:
+        if name_part.lower() in grp.lower() and cmds.listRelatives(grp)is None:  # Check if it's a group with children
+            return grp
+    return None
+
+def main():
+    
+    # Create Gear control and turn off controls
+    gear = rigs_util.Control('Rig_Settings')
+    gear.set_curve_type('gear')
+    gear.color(22)
+    xform = gear.create_xform(prefix='xform')    
+    gear.hide_attributes(attributes=None)
+    group_name = gear.get()
+
+    # Add custom attributes for visibility control
+    cmds.addAttr(group_name, longName='Joints_Vis', attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(group_name, longName='Controls_Vis', attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(group_name, longName='Geo_Vis', attributeType='bool', defaultValue=False, keyable=True)
+    cmds.addAttr(group_name, longName='Face_Vis', attributeType='bool', defaultValue=True, keyable=True)
+
+    # Find groups by partial names
+    joints_grp = find_group("Joints_Group")  
+    controls_grp = find_group("Control_Group") 
+    geo_grp = find_group("Geo_Group")
+    
+    # Debugging: Print found groups
+    print("Joints Group: {}".format(joints_grp))
+    print("Controls Group: {}".format(controls_grp))
+    print("Geo Group: {}".format(geo_grp))
+    
+    # If the groups exist, connect their visibility to the attributes
+    if joints_grp and cmds.objExists(joints_grp):
+        print("Connecting {}.Joints_Vis to {}.visibility".format(group_name, joints_grp))
+        cmds.connectAttr("{}.Joints_Vis".format(group_name), "{}.visibility".format(joints_grp))
+
+    if controls_grp and cmds.objExists(controls_grp):
+        print("Connecting {}.Controls_Vis to {}.visibility".format(group_name, controls_grp))
+        cmds.connectAttr("{}.Controls_Vis".format(group_name), "{}.visibility".format(controls_grp))
+
+    if geo_grp and cmds.objExists(geo_grp):
+        print("Connecting {}.Geo_Vis to {}.visibility".format(group_name, geo_grp))
+        cmds.connectAttr("{}.Geo_Vis".format(group_name), "{}.visibility".format(geo_grp))
+    
+    return
+

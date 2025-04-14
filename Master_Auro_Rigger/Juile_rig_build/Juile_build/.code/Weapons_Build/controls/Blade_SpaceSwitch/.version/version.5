@@ -1,0 +1,38 @@
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    sides = ["L", "R"]
+    parentList = [
+        "JNT_calf_follow_l","JNT_calf_follow_r",
+        "CNT_SUB_COG_1_C", "CNT_SUB_IK_ARM_BTM_1_L", "CNT_SUB_IK_ARM_BTM_1_R", 
+        "CNT_WORLD_1", "CNT_FK_LEG_3_L", "CNT_FK_LEG_3_R", "CNT_FK_ARM_3_L", "CNT_FK_ARM_3_R"
+    ]
+    
+    cnt = 'CNT_BLADE_CNT_1_L'
+    ikDriver = cmds.listRelatives(cnt, parent=1)[0]
+
+    rig = space.create_multi_follow(
+        parentList,
+        ikDriver,
+        node=cnt,
+        constraint_type='parentConstraint',
+        attribute_name='follow',
+        value=0,
+        create_title=True
+    )
+
+    cnt = 'CNT_BLADE_CNT_1_R'
+    ikDriver = cmds.listRelatives(cnt, parent=1)[0]
+
+    rig = space.create_multi_follow(
+        parentList,
+        ikDriver,
+        node=cnt,
+        constraint_type='parentConstraint',
+        attribute_name='follow',
+        value=0,
+        create_title=True
+    )
+
+    return

@@ -1,0 +1,19 @@
+
+
+for side in ['L', 'R']:
+    attribute_name = 'ikFk'
+
+    joint = 'locator_foot_%s' % side.upper()
+    
+    # Add IK-FK attribute to the foot roll control
+    cmds.addAttr('CNT_FOOT_%s_ROLL_1' % side, ln=attribute_name, min=0, max=1, k=True)
+
+    # Connect the IK-FK attribute to the joint's switch attribute
+    cmds.connectAttr('CNT_FOOT_%s_ROLL_1.%s' % (side, attribute_name), '%s.switch' % joint)
+
+    # Connect the joint's switch attribute to the leg's switch attribute
+    cmds.connectAttr('%s.switch' % joint, 'JNT_thigh_%s.switch' % side.lower())
+
+    
+    #This is needed so it doesn't get hidden with the ik/fk switching.
+    cmds.parent("xform_CNT_FOOT_%s_ROLL_1" % side, 'CNT_SUB_WORLD_2')

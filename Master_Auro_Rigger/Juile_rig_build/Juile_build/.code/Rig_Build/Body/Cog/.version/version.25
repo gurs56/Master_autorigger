@@ -1,0 +1,33 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    
+    joints = process.get_option("Hip", group="Joint")
+    Ctrlgrp = process.get_option("Ctrl_grp", group = "Groups")
+    
+    
+    # Check if joints were retrieved successfully
+    if not joints:
+        print("Warning! No joints found with the name 'hip' in the 'Joint' group.")
+        return  # Exit if no joints found
+
+    # Print retrieved joint for debugging
+    print("Retrieved joint:", joints)
+        
+    cog = rigs.SparseRig("COG",side="C")
+    cog.set_joints(joints)
+    cog.set_create_sub_control(True)
+    cog.set_sub_visibility(False)
+    cog.set_control_size(10)
+    cog.set_control_shape("circle")
+    cog.set_control_offset_axis('z')
+    #cog.set_xform_values(rotate=[0,-90,0],scale=None)
+    cog.set_control_size(10)
+    cog.delete_setup()
+    cog.create()
+    
+    cmds.parent(cog, 'CNT_SUB_WORLD_2')
+    
+    return

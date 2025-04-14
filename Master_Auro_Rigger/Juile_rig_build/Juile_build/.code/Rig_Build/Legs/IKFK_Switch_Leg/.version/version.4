@@ -1,0 +1,102 @@
+import maya.cmds as cmds
+
+def connect_switch_to_constraints(joint_list, switch_control, attribute_name):
+    """
+    Connect IK/FK switch control to the parent constraint weights of the given joint list.
+
+    Args:
+        joint_list (list): List of joints with existing parent constraints.
+        switch_control (str): Name of the switch control (e.g., 'l_Leg_SWITCH').
+        attribute_name (str): The IK/FK switch attribute name on the control.
+    """
+    for joint in joint_list:
+        # Check for an existing parent constraint on the joint
+        constraints = cmds.listRelatives(joint, type='parentConstraint')
+        if not constraints:
+            cmds.warning("No parent constraint found on joint '{}'.".format(joint))
+            continue
+
+        # Assume the first constraint is the relevant one
+        constraint = constraints[0]
+
+        # Get the constraint targets (IK and FK joints)
+        targets = cmds.parentConstraint(constraint, query=True, targetList=True)
+        if len(targets) < 2:
+            cmds.warning("Constraint '{}' on joint '{}' does not have two targets.".format(constraint, joint))
+            continue
+
+        # Connect the IK/FK switch attribute to the constraint weights
+        ik_weight = '{}.{}W0'.format(constraint, targets[0])
+        fk_weight = '{}.{}W1'.format(constraint, targets[1])
+        switch_attr = '{}.{}'.format(switch_control, attribute_name)
+
+        if not cmds.objExists(switch_attr):
+            cmds.warning("Switch attribute '{}' does not exist on '{}'.".format(attribute_name, switch_control))
+            continue
+
+        # Set up reverse connections to toggle IK and FK weights
+        if not cmds.objExists(switch_attr + "_reverse"):
+            reverse_node = cmds.createNode('reverse', name=switch_control + "_reverse")
+            cmds.connectAttr(switch_attr, reverse_node + ".inputX", force=True)
+        else:
+            reverse_node = switch_control + "_reverse"
+
+        cmds.connectAttr(switch_attr, ik_weight, force=True)
+        cmds.connectAttr(reverse_node + ".outputX", fk_weight, force=True)
+
+        print("Connected '{}' to '{}' and '{}' weights on '{}'.".format(
+            switch_attr, ik_weight, fk_weight, constraint))
+
+def toggle_visibility(ik_control, fk_control, switch_control, attribute_name):
+    """
+    Toggle visibility of IK and FK controls based on the switch attribute.
+
+    Args:
+        ik_control (str): Name of the IK control.
+        fk_control (str): Name of the FK control.
+        switch_control (str): Name of the switch control.
+        attribute_name (str): The IK/FK switch attribute name on the control.
+    """
+    if not cmds.objExists(ik_control) or not cmds.objExists(fk_control):
+        cmds.warning("Controls '{}' or '{}' do not exist!".format(ik_control, fk_control))
+        return
+
+    # Set up reverse connections for visibility
+    if not cmds.objExists(switch_control + "_reverse_vis"):
+        reverse_vis = cmds.createNode('reverse', name=switch_control + "_reverse_vis")
+        cmds.connectAttr('{}.{}'.format(switch_control, attribute_name), reverse_vis + ".inputX", force=True)
+    else:
+        reverse_vis = switch_control + "_reverse_vis"
+
+    cmds.connectAttr('{}.{}'.format(switch_control, attribute_name), '{}.visibility'.format(ik_control), force=True)
+    cmds.connectAttr(reverse_vis + ".outputX", '{}.visibility'.format(fk_control), force=True)
+
+def main():
+    # Retrieve joint lists from process options
+    leg_list_l = process.get_option("Leg_L", group="Joint")
+    leg_list_r = process.get_option("Leg_R", group="Joint")
+    foot_list_l = process.get_option("Foot_L", group="Joint")
+    foot_list_r = process.get_option("Foot_R", group="Joint")
+    arm_list_l = process.get_option("Arm_L", group="Joint")
+    arm_list_r = process.get_option("Arm_R", group="Joint")
+
+    # Define the IK/FK switch controls and attribute names
+    switches = {
+        "l_Leg_SWITCH": leg_list_l + foot_list_l,
+        "r_Leg_SWITCH": leg_list_r + foot_list_r,
+        "l_Arm_SWITCH": arm_list_l,
+        "r_Arm_SWITCH": arm_list_r
+    }
+    switch_attribute = "IKFK_SWITCH"
+
+    # Connect the switch controls to the constraints
+    for switch_control, joint_list in switches.items():
+        connect_switch_to_constraints(joint_list, switch_control, switch_attribute)
+
+    # Toggle visibility for IK and FK controls
+    toggle_visibility("CNT_IK_LEG_TOP_1_L", "CNT_FK_LEG_1_L", "l_Leg_SWITCH", switch_attribute)
+    toggle_visibility("CNT_IK_LEG_TOP_1_R", "CNT_FK_LEG_1_R", "r_Leg_SWITCH", switch_attribute)
+    toggle_visibility("CNT_IK_ARM_TOP_1_L", "CNT_FK_ARM_1_L", "l_Arm_SWITCH", switch_attribute)
+    toggle_visibility("CNT_IK_ARM_TOP_1_R", "CNT_FK_ARM_1_R", "r_Arm_SWITCH", switch_attribute)
+
+    print("IK/FK switch connections and visibility toggles completed.")

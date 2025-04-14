@@ -1,0 +1,35 @@
+from vtool.maya_lib import space
+
+def main():
+    
+    
+    sides = ["l", "r"]
+    parentList = ["CNT_SPINE_2_C", "CNT_SUB_COG_1_C", "CNT_WORLD_1"]
+    
+    CntL = "CNT_SUB_IK_LEG_BTM_1_L"
+    ikDriverL = cmds.listRelatives(CntL, parent=1)[0]
+    
+    rigL = space.create_multi_follow(
+            parentList,
+            ikDriverL,
+            node=CntL,
+            constraint_type='orientConstraint',
+            attribute_name='followRotate',
+            value=0,
+            create_title=True
+            )
+    
+    CntR = "CNT_SUB_IK_LEG_BTM_1_R"
+    ikDriverR = cmds.listRelatives(CntR, parent=1)[0]
+    
+    rigR = space.create_multi_follow(
+            parentList,
+            ikDriverR,
+            node=CntR,
+            constraint_type='orientConstraint',
+            attribute_name='followRotate',
+            value=0,
+            create_title=True
+            )
+    
+    return

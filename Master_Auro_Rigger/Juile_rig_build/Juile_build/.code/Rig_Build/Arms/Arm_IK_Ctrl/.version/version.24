@@ -1,0 +1,80 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import attr
+import maya.cmds as cmds
+
+def main():
+    RigParts = process.get_option("RigParts", group="Groups")
+    
+    # List of sides
+    arms = ['l', 'r']
+    
+    # Loop for Arms
+    for arm in arms:
+        # Find IK Arm joints for the current arm side
+        IKArm = [
+            i for i in process.get_option("IK_Arm", group="IKFK")
+            if i.endswith('_%s' % arm)  # Ensure the name ends with the correct arm side
+        ]
+
+        # Debugging: Print the joints for the current arm side
+        print("Found IK Arm Joints for arm '%s': %s" % (arm, IKArm))
+
+        # Skip if no joints are found for the current arm side
+        if not IKArm:
+            cmds.warning("No IK Arm joints found for arm '%s'!" % arm)
+            continue
+
+        # Ensure there are enough joints for IK rigging
+        if len(IKArm) < 3:
+            cmds.warning("Insufficient joints for IK setup on arm '%s'!" % arm)
+            continue
+
+        """
+        # Define pole vector setup
+        poleVac = [
+            IKArm[0],  # Upper arm joint
+            IKArm[1],  # Lower arm joint
+            "JNT_lowerarm_%s_poleAngle" % arm  # Pole vector joint (fixed naming)
+        ]
+        """
+
+        poleVac = [ IKArm[0], 'JNT_lowerarm_%s_poleAngle'%arm, IKArm[1]]
+        
+        # Debugging: Check if the pole vector joint exists
+        if not cmds.objExists(poleVac[2]):
+            cmds.warning("Pole vector joint '%s' does not exist!" % poleVac[2])
+            continue
+
+        # Create IK rig
+        ArmRig = rigs.IkAppendageRig("IK_Arm", arm)
+        ArmRig.set_joints(IKArm)
+        ArmRig.set_control_offset_axis('z')
+        ArmRig.set_control_size(6)
+        ArmRig.set_control_shape("cube")
+        ArmRig.set_create_stretchy(True)
+        ArmRig.set_stretch_axis('x')
+        ArmRig.set_pole_angle_joints(poleVac)
+        ArmRig.create()
+        ArmRig.set_setup_parent(RigParts)
+        ArmRig.set_match_btm_to_joint(True)
+        
+        
+        # Print all created objects for debugging
+        print("Created controls:", cmds.ls("controls_IK_*"))
+
+        # Construct the control name dynamically
+        control_name = "controls_IK_Arm_1_%s" % arm.upper()
+
+        # Debugging: Check if the control exists
+        if not cmds.objExists(control_name):
+            cmds.warning("Control '%s' does not exist for arm '%s'!" % (control_name, arm))
+            continue
+        
+        # Parent IK controls to the respective clavicle controls
+        cmds.parent(control_name, "CNT_CLAVICLE_1_%s" % arm.upper())
+        
+        print("Successfully created IK Arm rig for arm '%s'." % arm)
+        
+        
+
+    return

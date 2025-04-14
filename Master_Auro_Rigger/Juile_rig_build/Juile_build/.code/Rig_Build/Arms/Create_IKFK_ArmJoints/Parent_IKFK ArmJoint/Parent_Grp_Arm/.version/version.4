@@ -1,0 +1,30 @@
+import maya.cmds as cmds
+
+def main():
+    # List of joint names
+    jnt_name = ["JNT_IK_thigh_l", "JNT_IK_thigh_r", "JNT_FK_thigh_l", "JNT_FK_thigh_r"]
+    
+    # Get RigParts group
+    RigParts = process.get_option("RigParts", group="Groups")
+    
+    if not cmds.objExists(RigParts):
+        cmds.error("RigParts group '{}' does not exist in the scene!".format(RigParts))
+        return
+    
+    # Create a new empty group
+    Armikfk = cmds.group(empty=True, name="Armikfk")
+    print("Created group: {}".format(Armikfk))
+    
+    for jnt in jnt_name:
+        # Check if the joint exists
+        if cmds.objExists(jnt):
+            # Parent joint to the Armikfk group
+            cmds.parent(jnt, Armikfk)
+            print("Parented {} to {}".format(jnt, Armikfk))
+        else:
+            print("Cannot find joint: {}".format(jnt))
+    
+    # Parent Armikfk to RigParts
+    cmds.parent(Armikfk, RigParts)
+    print("Parented {} to {}".format(Armikfk, RigParts))
+f

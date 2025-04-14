@@ -1,0 +1,36 @@
+
+def main():
+    
+    poleVac = [ arm[0], "%s_poleAngle"%arm[1], arm[1]]
+    
+    # List of sides
+    sides = ['l', 'r']
+    
+    # Loop for Arms
+    for arm in sides:
+        # Find FK Arm joints for the current side
+        IKArm = [
+            i for i in process.get_option("IK_Arm", group="IKFK")
+            if i.endswith('_%s' % arm)  # Ensure the name ends with the correct side
+        ]
+    
+    # Debugging: Print the joints for the current side
+    print("Found IK Arm Joints for side '%s': %s" % (arm, FKArm))
+    
+    # Skip if no joints are found for the current side
+    if not IKArm:
+        cmds.warning("No IK Arm joints found for side '%s'!" % arm)
+        continue
+        
+    ArmRig = rigs.IkAppendageRig("IKArm", side)
+    ArmRig.set_joints(arm)
+    ArmRig.set_control_offset_axis('z')
+    ArmRig.set_control_size(6)
+    ArmRig.set_create_stretchy(True)
+    ArmRig.set_stretch_axis('x')
+    ArmRig.set_pole_angle_joints(poleVac)
+    leg.create()
+    leg.set_control_parent( hips )
+    leg.set_setup_parent( setupGrp )
+    
+    return

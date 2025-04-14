@@ -1,0 +1,52 @@
+import maya.cmds as cmds
+
+def main():
+
+# Full list of joints
+    ArmJoints = cmds.ls(type='joint')
+      
+    # Target joint names to look for
+    target_names = ["JNT_upperarm", "JNT_lowerarm", "JNT_hand"]
+    
+    LArmJoints = []
+    RArmJoints = []
+
+    ik_joints = []
+    fk_joints = []
+    
+    # Loop through all joints and check for matches
+    for joint in ArmJoints:
+        if "twist" not in joint:
+            for target in target_names:
+                if target in joint:
+                    if joint.endswith("_l"):
+                        LArmJoints.append(joint)
+                    elif joint.endswith("_r"):
+                        RArmJoints.append(joint)
+
+    # Print results for debugging
+    print("Left Arm Joints: {}".format(LArmJoints))
+    print("Right Arm Joints: {}".format(RArmJoints))
+        
+    
+    for joint in LArmJoints:
+        ik_joint = cmds.duplicate(LArmJoints,RArmJoints, name=joint.replace("JNT", "JNT_IK"), po=True)[0]
+        ik_joints.append(ik_joint)
+    
+    
+    """
+    # Duplicate joint for IK chain
+    ik_joint = cmds.duplicate(LArmJoints,RArmJoints, name=joint.replace("JNT", "JNT_IK"), po=True)[0]
+    ik_joints.append(ik_joint)
+
+    # Duplicate joint for FK chain
+    fk_joint = cmds.duplicate(joint, name=joint.replace("JNT", "JNT_FK"), po=True)[0]
+    fk_joints.append(fk_joint)
+    """
+    
+    
+    
+    
+    
+
+    return

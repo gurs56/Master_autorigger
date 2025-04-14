@@ -1,0 +1,41 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    
+    sides = ['l', 'r']
+    
+    for side in sides:
+        
+        foot_joints = ['JNT_IK_foot_%s' %side, 'JNT_IK_ball_%s'% side, 'JNT_IK_toe_%s'% side]
+        
+        # Check if all required joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                return
+        
+        # Create a setup group for organization
+        setup_group = cmds.group(empty=True, name="SetupGroup_FootRoll_%s" % side.upper())
+        
+        # Create the foot roll rig
+        foot_roll = rigs.FootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)
+        foot_roll.set_attach_joints(True)
+        foot_roll.set_pivot_locators('Heel_%s_Loc' %side.upper(), 'BallYawIn_%s_Loc' %side.upper(), 'BallYawOut_%s_Loc' %side.upper())
+        foot_roll.set_create_roll_controls(True)
+        foot_roll.set_sub_visibility(True)
+        foot_roll.set_buffer(True)
+        # Create the rig
+        foot_roll.set_forward_roll_axis('Y')
+        foot_roll.set_side_roll_axis('X')
+        
+        foot_roll.create()
+        
+        cmds.parentConstraint( 'CNT_FOOTROLL_BALL_1_%s' % side.upper(), 'xform_ikHandle_IK_Leg_1_%s' % side.upper(), mo=1 )
+        
+        foot_roll.set_control_parent('CNT_SUB_IK_LEG_BTM_1_%s' % side.upper() )
+        foot_roll.set_setup_parent("RigParts")
+        
+        
+    return

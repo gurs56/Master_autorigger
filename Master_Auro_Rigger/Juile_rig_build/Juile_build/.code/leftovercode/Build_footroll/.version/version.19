@@ -1,0 +1,41 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Check if all required joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                return
+        
+        # Create a setup group for organization
+        setup_group = cmds.group(empty=True, name="SetupGroup_FootRoll_%s" % side.upper())
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)
+        foot_roll.set_attach_joints(True)
+        foot_roll.set_create_roll_controls(True)
+        
+        # Create the rig
+        foot_roll.create()
+        
+        # Manually find created nodes based on naming conventions
+        rig_nodes = cmds.ls("CNT_FOOTROLL_*_%s" % side.upper())  # Replace with actual naming logic if needed
+        
+        if not rig_nodes:
+            cmds.warning("No rig nodes were created for side '%s'." % side.upper())
+            continue
+        
+        # Parent found nodes to the setup group
+        for node in rig_nodes:
+            cmds.parent(node, setup_group)
+        
+        print("Foot roll created successfully for side '{}'.".format(side))
+    
+    return

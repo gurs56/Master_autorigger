@@ -1,0 +1,12 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import space
+from vtool.maya_lib import geo
+
+def main():
+    # Retrieve the joints for the left leg from the process options
+    joints = process.get_option("Foot_L", group="Joint")
+    
+    rig = rigs.FootRig('ik_foot', side)
+    rig.set_joints(joints)
+    rig.set_no_ball(True)   

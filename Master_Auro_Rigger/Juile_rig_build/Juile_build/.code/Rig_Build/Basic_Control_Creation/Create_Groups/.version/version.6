@@ -1,0 +1,14 @@
+import maya.cmds as cmds
+
+
+def main():
+
+#Create a mastergrp and parent other groups to it
+Juile_Rig = create_group(empty = True, name = "Juile_Rig")
+Asset_Grps = ["Joints", "Geo", "RigParts"]
+
+for Groups in Asset_Grps:
+    NewGrp =create_group(em = True)
+    cmds.parent(NewGrp, Juile_Rig)
+
+    return

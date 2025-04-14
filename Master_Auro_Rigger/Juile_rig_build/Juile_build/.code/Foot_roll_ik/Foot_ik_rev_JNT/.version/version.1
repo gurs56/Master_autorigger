@@ -1,0 +1,78 @@
+import maya.cmds as cmds
+
+def create_res_joints():
+    """
+    FORCE-CREATES these pairs:
+      (source -> new_joint)
+
+    Source Joints  -> Res Joints
+     - JNT_foot_l  -> JNT_footRes_l
+     - JNT_ball_l  -> JNT_ballRes_l
+     - JNT_toe_l   -> JNT_toeRes_l
+     - JNT_foot_r  -> JNT_footRes_r
+     - JNT_ball_r  -> JNT_ballRes_r
+     - JNT_toe_r   -> JNT_toeRes_r
+
+    Locators -> Joints
+     - BallYawIn_R_Loc  -> JNT_BallYawIn_R
+     - Heel_R_Loc       -> JNT_Heel_R
+     - BallYawOut_R_Loc -> JNT_BallYawOut_R
+     - BallYawIn_L_Loc  -> JNT_BallYawIn_L
+     - Heel_L_Loc       -> JNT_Heel_L
+     - BallYawOut_L_Loc -> JNT_BallYawOut_L
+
+    If the source node doesn't exist, it warns and skips.
+    If a target joint already exists, it deletes it before recreating.
+    """
+
+    # Define all pairs (source_node, new_joint_name)
+    pairs = [
+        ('JNT_foot_l',   'JNT_footRes_l'),
+        ('JNT_ball_l',   'JNT_ballRes_l'),
+        ('JNT_toe_l',    'JNT_toeRes_l'),
+
+        ('JNT_foot_r',   'JNT_footRes_r'),
+        ('JNT_ball_r',   'JNT_ballRes_r'),
+        ('JNT_toe_r',    'JNT_toeRes_r'),
+
+        ('BallYawIn_R_Loc',  'JNT_BallYawIn_R'),
+        ('Heel_R_Loc',       'JNT_Heel_R'),
+        ('BallYawOut_R_Loc', 'JNT_BallYawOut_R'),
+
+        ('BallYawIn_L_Loc',  'JNT_BallYawIn_L'),
+        ('Heel_L_Loc',       'JNT_Heel_L'),
+        ('BallYawOut_L_Loc', 'JNT_BallYawOut_L'),
+    ]
+
+    for source_node, new_jnt in pairs:
+
+        # 1. Check if source node exists
+        if not cmds.objExists(source_node):
+            cmds.warning("Skipping '%s' - source node doesn't exist." % source_node)
+            continue
+
+        # 2. If the target joint exists, delete it so we can re-create
+        if cmds.objExists(new_jnt):
+            cmds.delete(new_jnt)
+
+        # 3. Create the new joint
+        new_node = cmds.createNode('joint', name=new_jnt)
+
+        # 4. Match position/rotation
+        pos = cmds.xform(source_node, q=True, ws=True, t=True)
+        rot = cmds.xform(source_node, q=True, ws=True, ro=True)
+
+        cmds.xform(new_node, ws=True, t=pos)
+        cmds.xform(new_node, ws=True, ro=rot)
+
+        # 5. (Optional) Ensure local axes match with a parentConstraint trick
+        temp_cst = cmds.parentConstraint(source_node, new_node, mo=False)
+        cmds.delete(temp_cst)
+
+        print("Created '%s' on top of '%s'." % (new_jnt, source_node))
+
+def main():
+    create_res_joints()
+
+if __name__ == '__main__':
+    main()

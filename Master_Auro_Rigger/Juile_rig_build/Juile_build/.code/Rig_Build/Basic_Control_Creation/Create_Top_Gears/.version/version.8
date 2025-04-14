@@ -1,0 +1,43 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    
+    #Create Gear control and turn of controls
+    gear = rigs_util.Control( 'Rig_Settings' )
+    gear.set_curve_type( 'gear' )
+    gear.color(22)
+    xform = gear.create_xform( prefix = 'xform' )    
+    gear.hide_attributes( attributes = None )
+    group_name = gear.get()
+    
+    # Add custom attributes for visibility control
+    cmds.addAttr(g_name, longName='Joints_Vis', #Joint_vis
+     attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(g_name, longName='Controls_Vis', # Control_vis
+     attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(g_name, longName='Geo_Vis', #Geo_vis
+     attributeType='bool', defaultValue=True, keyable=True)
+    cmds.addAttr(g_name, longName='Face_Vis', #Face_vis
+     attributeType='bool', defaultValue=True, keyable=True)
+     
+    # Connect attributes to visibility of relevant objects
+    joints_grp = "Joints_Group"  
+    controls_grp = "Geo_Group"  
+    geo_grp = "Control_Group"  
+    
+    
+    # If the groups exist, connect their visibility to the attributes
+    if cmds.objExists(joints_grp):
+        cmds.connectAttr(f'{group_name}.showJoints', f'{Joints_Group}.visibility')
+
+    if cmds.objExists(controls_grp):
+        cmds.connectAttr(f'{group_name}.showControls', f'{Control_Group}.visibility')
+
+    if cmds.objExists(geo_grp):
+        cmds.connectAttr(f'{group_name}.showGeo', f'{Geo_Group}.visibility')
+      
+    
+        
+    return

@@ -1,0 +1,39 @@
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import core
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    
+    """
+    # Create a control group
+    control_group = "Control_Group"
+    if not cmds.objExists(control_group):
+        Con_grp = cmds.group(em=True, name=control_group)
+    """
+    Get_Joint = process.get_option('Root', group = 'Joint')
+    
+    if not cmds.objExists(joint_name):
+        raise Exception(f"Joint '{joint_name}' does not exist!")
+    # 
+    rig = rigs.GroundRig("Root")
+    
+    # Set the control shape to square
+    rig.set_control_shape("outwardCirclePointer")
+    rig.set_control_size(3)
+    rig.set_control_color(22)
+    rig.set_scalable(True)
+    
+    rig.set_joints([joint_name])
+    
+    # Create the rig (will build the FK chain)
+    rig.create()
+    
+    """
+    # Parent the rig under the control group
+    fk_controls = rig.controls  # This holds the created FK controls
+    cmds.parent(fk_controls[0], control_group)
+    """
+    print("Created FK rig with control curve shape: square")
+
+main()

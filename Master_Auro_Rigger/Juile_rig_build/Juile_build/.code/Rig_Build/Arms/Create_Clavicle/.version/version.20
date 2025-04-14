@@ -1,0 +1,31 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    # List to store valid clavicle joint names
+    sides = ['l', 'r']
+    
+    # Loop through the sides and filter for matching control names
+    for side in sides:
+        ClavJoint = [
+            i for i in process.get_option("Arms", group="Joint")
+            if i.find('JNT_clavicle_%s'%side) != -1
+        ]
+    
+    print("Found Clavicle Controls:"ClavJoint) 
+    
+    # Create the clavicle rig
+    clav = rigs.SparseRig("clavicle")
+    clav.set_joints(ClavJoint)
+    clav.set_attach_joints(True)
+    clav.set_control_to_pivot(True)
+    clav.set_create_sub_control(False)
+    clav.set_control_shape('yaw')
+    clav.set_control_offset_axis('z')
+    clav.set_control_size(4)
+    clav.delete_setup()
+    clav.create()
+    clav.set_control_parent("CNT_SPINE_2_C")
+
+    return

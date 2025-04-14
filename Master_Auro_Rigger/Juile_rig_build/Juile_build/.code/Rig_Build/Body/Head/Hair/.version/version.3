@@ -1,0 +1,14 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    # Variables
+    HairJnt = process.get_option("Hair", group="Joint")
+    
+    rig = rigs.FkRig("Hair")
+    rig.set_joints(HairJnt)
+    rig.create()
+    rig.delete_setup()
+    
+    cmds.parent("controls_Hair_1","CNT_HEAD_1_C")
+   

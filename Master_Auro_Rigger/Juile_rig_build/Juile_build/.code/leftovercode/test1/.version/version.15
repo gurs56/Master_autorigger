@@ -1,0 +1,33 @@
+from vtool.maya_lib import rigs  # Import the rigs module
+import maya.cmds as cmds
+
+def main():
+    
+    sides = ['l', 'r']
+    
+    
+    for side in sides:
+        
+        foot_joints = ['JNT_IK_foot_%s' % side, 'JNT_IK_ball_%s' % side, 'JNT_IK_toe_%s' % side]
+        
+        # Check if all required joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                continue
+
+      
+        # Create a foot rig for the current side
+        FootRig = rigs.FootRig("Foot_Rig", side=side)
+        FootRig.set_build_hierarchy(True)
+        #FootRig.set_create_ball_controls(True)  # Enable roll controls
+        FootRig.set_pivot_locators('Heel_%s_Loc' %side.upper(), 'BallYawIn_%s_Loc' %side.upper(), 'BallYawOut_%s_Loc' %side.upper())
+        FootRig.set_build_hierarchy(True)
+        FootRig.set_create_foot_roll(True)
+        FootRig.set_control_size(10)
+        FootRig.set_joints(foot_joints)
+        FootRig.set_forward_roll_axis("Y")
+        FootRig.create()
+        FootRig.delete_setup()
+    
+    return

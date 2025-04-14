@@ -1,0 +1,66 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def main():
+    # Retrieve the group for rig parts
+    rigparts = process.get_option("RigParts", group="Groups")
+    
+    # Test only the left side
+    side = 'L'
+
+    # Retrieve the foot joint for the current side
+    foot_options = process.get_option("Foot_%s" % side, group="Joint")
+    
+    if foot_options:  # Check if the list is not empty
+        footJoint = foot_options[0]
+        print "Foot joint for side %s: %s" % (side, footJoint)
+    else:
+        print "No foot options found for side %s or the list is empty." % side
+        return  # Exit if no options are found
+    
+    # Create and position locator for the foot
+    locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side)[0]
+    space.MatchSpace(footJoint, locator_foot).translation_rotation()
+    cmds.parent(locator_foot, 'RigParts')
+
+    # Define the joints for the left side
+    joints = [
+        'locator_foot_%s' % side,
+        'JNT_ball_%s' % side.lower(),
+        'JNT_toe_%s' % side.lower()
+    ]
+
+    # Create and configure the FootRig
+    rig = rigs.FootRig('foot_%s' % side)
+    rig.set_control_shape('square')
+    rig.set_joints(joints)
+    rig.set_attach_joints(True)
+    rig.set_attribute_control('CNT_IK_LEG_BTM_1_%s' % side)
+    rig.set_pivot_locators(
+        'Heel_%s_JNT' % side.lower(),
+        'BallYawIn_%s_JNT' % side.lower(),
+        'BallYawOut_%s_JNT' % side.lower()
+    )
+    rig.set_ik_leg([
+        'xform_offset_CNT_SUB_IK_LEG_BTM_1_%s' % side,
+        'xform_ikHandle_ik_leg_1_%s' % side
+    ])
+    rig.set_buffer(True)
+    rig.set_control_size(5)
+    rig.set_toe_control_as_sub_control(True)
+    rig.set_forward_roll_axis("Y")
+    rig.set_side_roll_axis("Y")
+    rig.set_create_ball_control(True)
+    rig.create()
+
+    # Optional parenting and setup
+    rig.set_control_parent('CNT_SUB_IK_LEG_BTM_1_%s' % side)
+    rig.set_setup_parent(rigparts)
+    
+    # Fix constraints on buffer foot
+    cmds.delete('buffer_foot_%s_1_parentConstraint1' % side)
+    cmds.orientConstraint('locator_foot_%s' % side, 'buffer_foot_%s_1' % side)
+
+main()

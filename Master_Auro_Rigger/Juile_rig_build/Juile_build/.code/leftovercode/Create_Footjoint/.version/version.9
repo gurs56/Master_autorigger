@@ -1,0 +1,50 @@
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Define the root joint for duplication
+        foot_joint = 'JNT_foot_%s' % side
+        
+        # Check if the foot joint exists
+        if not cmds.objExists(foot_joint):
+            cmds.warning("Foot joint '%s' does not exist! Skipping." % foot_joint)
+            continue
+        
+        try:
+            # Duplicate the foot joint hierarchy
+            duplicated_root = cmds.duplicate(foot_joint, name='JNT_FOOT_%s' % side, rc=True)[0]
+            
+            # Get the child joints (ball and toe)
+            children = cmds.listRelatives(duplicated_root, children=True, type='joint', f=True) or []
+            
+            # Unparent all duplicated joints to break hierarchy
+            cmds.parent(duplicated_root, world=True)
+            for child in children:
+                cmds.parent(child, world=True)
+            
+            # Rename all duplicated joints
+            renamed_joints = {}
+            renamed_joints[duplicated_root] = cmds.rename(duplicated_root, 'JNT_FOOT_%s' % side)
+            for child in children:
+                if "ball" in child.lower():
+                    renamed_joints[child] = cmds.rename(child, 'JNT_FOOT_BALL_%s' % side)
+                elif "toe" in child.lower():
+                    renamed_joints[child] = cmds.rename(child, 'JNT_FOOT_TOE_%s' % side)
+            
+            # Apply orientation constraints from original joints to duplicated ones
+            for original_joint, new_joint in renamed_joints.items():
+                original_name = original_joint.replace('JNT_FOOT_', 'JNT_').replace('_BALL', '_ball').replace('_TOE', '_toe')
+                if cmds.objExists(original_name):
+                    cmds.orientConstraint(original_name, new_joint, mo=False)
+                    print("Constrained %s -> %s" % (original_name, new_joint))
+                else:
+                    cmds.warning("Original joint '%s' does not exist! Skipping constraint." % original_name)
+
+            print("Successfully duplicated and constrained joints for side '%s'." % side)
+        
+        except RuntimeError as e:
+            cmds.warning("Error processing side '%s': %s" % (side, str(e)))
+
+main()

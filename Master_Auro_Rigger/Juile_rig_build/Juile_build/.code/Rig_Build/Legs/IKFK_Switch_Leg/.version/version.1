@@ -1,0 +1,77 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def create_ik_fk_switch_controls():
+    """
+    Create IK/FK switch controls and add the IK/FK switch attribute to each.
+    """
+    gears = ["l_Leg_SWITCH", "r_Leg_SWITCH", "l_Arm_SWITCH", "r_Arm_SWITCH"]
+    ikfk_attr = "IKFK_SWITCH"
+    parent_control = "CNT_SUB_WORLD_2"  # Parent control name
+    
+    for gear_name in gears:
+        # Initialize the control
+        gear = rigs_util.Control(gear_name)
+        gear.set_curve_type('gear')
+        gear.color(22)
+        xform = gear.create_xform(prefix='xform')
+        gear.hide_attributes(attributes=None)
+        
+        # Add IK/FK switch attribute
+        if not cmds.objExists('%s.%s' % (gear_name, ikfk_attr)):
+            cmds.addAttr(gear_name, longName=ikfk_attr, attributeType='float', minValue=0, maxValue=1, defaultValue=1, keyable=True)
+        
+        # Parent the control under the specified parent control
+        if cmds.objExists(parent_control):
+            cmds.parent(xform, parent_control)
+        
+        print("Created control {} with IK/FK switch attribute.".format(gear_name))
+
+def switch_parent_constraints(joints, controls):
+    """
+    Switch the parent constraints on the specified joints based on the IK/FK switch attribute.
+    """
+    for joint, control in zip(joints, controls):
+        ik_joint = joint.replace("JNT_", "JNT_IK_")
+        fk_joint = joint.replace("JNT_", "JNT_FK_")
+        
+        if not cmds.objExists(ik_joint) or not cmds.objExists(fk_joint):
+            cmds.warning("IK or FK joint missing for '{}'.".format(joint))
+            continue
+        
+        # Add parent constraint with weight control for IK/FK
+        constraint = cmds.parentConstraint(ik_joint, fk_joint, joint, maintainOffset=True)[0]
+        
+        # Connect IK/FK switch attribute to the constraint weights
+        ikfk_attr = '{}.IKFK_SWITCH'.format(control)
+        if cmds.objExists(ikfk_attr):
+            cmds.connectAttr(ikfk_attr, '{}.{}W0'.format(constraint, ik_joint), force=True)
+            cmds.connectAttr(ikfk_attr, '{}.{}W1'.format(constraint, fk_joint), force=True)
+        else:
+            cmds.warning("Switch attribute '{}' does not exist.".format(ikfk_attr))
+
+def main():
+    # Create IK/FK switch controls
+    create_ik_fk_switch_controls()
+    
+    # Define the joints for IK/FK switching
+    leg_joints = [
+        "JNT_thigh_l", "JNT_calf_l", "JNT_foot_l",
+        "JNT_thigh_r", "JNT_calf_r", "JNT_foot_r"
+    ]
+    foot_joints = [
+        "JNT_foot_l", "JNT_ball_l", "JNT_toe_l",
+        "JNT_foot_r", "JNT_ball_r", "JNT_toe_r"
+    ]
+    
+    # Define the corresponding switch controls
+    controls = ["l_Leg_SWITCH", "r_Leg_SWITCH", "l_Leg_SWITCH", "r_Leg_SWITCH"]
+    
+    # Switch parent constraints for leg joints
+    switch_parent_constraints(leg_joints, controls)
+    
+    # Switch parent constraints for foot joints
+    switch_parent_constraints(foot_joints, controls)
+
+    print("IK/FK switching setup complete.")

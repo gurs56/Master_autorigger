@@ -1,0 +1,46 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Define the joints for foot, ball, and toe
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Check that joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                return
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)
+        foot_roll.set_attach_joints(True)
+        foot_roll.set_create_roll_controls(True)
+        
+        # Create pivot locators manually
+        heel_loc = 'Heel_%s_Loc' % side.upper()
+        ball_yaw_in_loc = 'BallYawIn_%s_Loc' % side.upper()
+        ball_yaw_out_loc = 'BallYawOut_%s_Loc' % side.upper()
+
+        for loc_name in [heel_loc, ball_yaw_in_loc, ball_yaw_out_loc]:
+            if not cmds.objExists(loc_name):
+                cmds.spaceLocator(name=loc_name)  # Create locator if it doesn't exist
+        
+        # Parent locators to the rig group or foot control if necessary
+        rig_group = 'FootRoll_RigGroup_%s' % side.upper()  # Example rig group
+        if not cmds.objExists(rig_group):
+            rig_group = cmds.group(empty=True, name=rig_group)  # Create rig group if missing
+
+        cmds.parent(heel_loc, rig_group)
+        cmds.parent(ball_yaw_in_loc, rig_group)
+        cmds.parent(ball_yaw_out_loc, rig_group)
+
+        # Finalize rig creation
+        foot_roll.create()
+        
+        print("Foot roll created successfully for side '{}'.".format(side))
+        
+    return

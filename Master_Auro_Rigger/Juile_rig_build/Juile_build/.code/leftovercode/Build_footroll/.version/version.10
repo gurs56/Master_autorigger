@@ -1,0 +1,31 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Define the joints for foot, ball, and toe
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)  # Assuming this is required
+        
+        # Create the foot roll rig
+        foot_roll.create()
+        
+        # Create the setup group manually
+        setup_group = cmds.group(empty=True, name='foot_roll_setup_%s' % side)  # Create a setup group
+
+        # Check if the controls are created
+        if hasattr(foot_roll, 'controls') and foot_roll.controls:
+            # Parent the controls to the setup group
+            cmds.parent(foot_roll.controls, setup_group)
+            print("Controls successfully parented to setup group.")
+        else:
+            cmds.warning("No controls found to parent for '%s'!" % side)
+
+    return

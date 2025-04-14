@@ -1,0 +1,40 @@
+import maya.cmds as cmds
+
+def duplicate_and_rename_joints(original_joints, prefix):
+    """
+    Duplicates a list of joints, renames them with the specified prefix, and sets up parent constraints.
+
+    Args:
+        original_joints (list): List of joint names to duplicate.
+        prefix (str): Prefix to add to the new joint names.
+    """
+    if not original_joints:
+        cmds.warning("No joints provided for duplication.")
+        return
+
+    # Check if all original joints exist
+    for joint in original_joints:
+        if not cmds.objExists(joint):
+            cmds.warning(f"Joint '{joint}' does not exist! Skipping.")
+            return
+
+    # Duplicate joints and rename
+    duplicated_joints = []
+    for joint in original_joints:
+        new_joint_name = f"{prefix}_{joint}"
+        try:
+            dup_joint = cmds.duplicate(joint, name=new_joint_name)[0]
+            duplicated_joints.append(dup_joint)
+            print(f"Duplicated and renamed: {joint} -> {dup_joint}")
+        except RuntimeError as e:
+            cmds.warning(f"Error duplicating joint '{joint}': {e}")
+
+    # Parent constrain the duplicated joints to the original joints
+    for orig_joint, dup_joint in zip(original_joints, duplicated_joints):
+        cmds.orientConstraint(orig_joint, dup_joint, mo=True)
+        print(f"Parent constrained: {orig_joint} -> {dup_joint}")
+
+# Example usage
+original_joints = ['JNT_foot_l', 'JNT_ball_l', 'JNT_toe_l']
+prefix = 'JNT_FOOT'
+duplicate_and_rename_joints(original_joints, prefix)

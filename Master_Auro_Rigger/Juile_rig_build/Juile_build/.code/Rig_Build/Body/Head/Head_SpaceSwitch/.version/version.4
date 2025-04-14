@@ -1,0 +1,22 @@
+from vtool.maya_lib import space
+
+def main():
+    
+    
+    sides = ["l", "r"]
+    parentList = ["CNT_NECK_2_C", "CNT_SUB_COG_1_C", "CNT_WORLD_1"]
+    
+    cnt = 'CNT_HEAD_1_C'
+    ikDriver = cmds.listRelatives(cnt, parent=1)[0]
+    
+    rig = space.create_multi_follow(
+            parentList,
+            ikDriver,
+            node=cnt,
+            constraint_type='orientConstraint',
+            attribute_name='followRotate',
+            value=0,
+            create_title=True
+            )
+    
+    return

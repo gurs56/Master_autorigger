@@ -1,0 +1,25 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    FKLeg = process.get_option("FK_Leg", group = "IKFK")
+    
+    FKArmJoint = []
+    for i in process.get_option("FK_Arm", group = "IKFK"):
+        if "arm" in i:
+            FKArmJoint.append(i)
+            
+        else if "hand" in i:
+            FKArmJoint.append(i)
+            
+     Arm = rig.FkRig("FK_Arm")
+     Arm.set_joints(FKArmJoint)
+     Arm.set_control_size(6)
+     Arm.delete_setup()
+     Arm.create()
+     Arm
+     
+    
+    
+    return

@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "Arm_FK_Ctrl"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

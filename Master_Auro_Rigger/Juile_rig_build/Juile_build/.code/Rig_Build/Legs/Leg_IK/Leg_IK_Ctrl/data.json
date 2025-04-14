@@ -1,0 +1,14 @@
+[
+    [
+        "sub_folder",
+        ""
+    ],
+    [
+        "name",
+        "Leg_IK_Ctrl"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ]
+]

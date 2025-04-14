@@ -1,0 +1,26 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    FKLeg = process.get_option("FK_Leg", group = "IKFK")
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Find clavicle joints for the current side
+        FKArm = [
+            i for i in process.get_option("Arms", group="Joint")
+            if i.find('arm%s' % side) != -1
+            else if i.find('hand%s' % side) != -1
+        ]
+            
+     Arm = rig.FkRig("FK_Arm")
+     Arm.set_joints(FKArmJoint)
+     Arm.set_control_size(6)
+     Arm.delete_setup()
+     Arm.create()
+     Arm
+     
+    
+    
+    return

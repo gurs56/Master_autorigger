@@ -1,0 +1,11 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    joints = process.get_option('hip', group='Joint')
+    
+    cog = rigs.SparseRig('COG', 'C')
+    cog.set_joints(joints)
+    
+    return

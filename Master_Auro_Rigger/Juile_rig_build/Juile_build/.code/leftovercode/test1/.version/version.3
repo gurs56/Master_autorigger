@@ -1,0 +1,21 @@
+import maya.cmds as cmds
+
+def main():
+    
+    sides = ['l', 'r']
+    
+    for side in sides:
+        
+        foot_joints = ['JNT_IK_foot_%s' %side, 'JNT_IK_ball_%s'% side, 'JNT_IK_toe_%s'% side]
+        
+        
+        # Check if all required joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+        
+        foot_roll = rigs.BaseFootRig("Foot_Rig", side=side)
+        foot_roll.set_create_roll_controls()
+        
+    
+    return

@@ -1,0 +1,25 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    # Ensure 'RigParts' exists in the scene
+    if not cmds.objExists('RigParts'):
+        cmds.group(em=True, name='RigParts')
+
+    # Create locators and foot rigs for both sides
+    for side in ['L', 'R']:
+        # Create and position locator for the foot
+        locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side)[0]
+        space.MatchSpace('JNT_foot_%s' % side, locator_foot).translation_rotation()
+        cmds.parent(locator_foot, 'RigParts')
+
+        # Retrieve the joints for the current side
+        joints = process.get_option("Foot_%s" % side, group="Joint")
+
+        # Create and configure the FootRig
+        rig = rigs.FootRig('ik_foot', side)
+        rig.set_joints(joints)
+        rig.set_control_size(10) 
+        rig.set_no_ball(True)  
+        #rig.create()

@@ -1,0 +1,36 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    # Ensure 'RigParts' exists in the scene
+    if not cmds.objExists('RigParts'):
+        cmds.group(em=True, name='RigParts')
+
+    # Create locators and foot rigs for both sides
+    for side in ['L', 'R']:
+        # Create and position locator for the foot
+        locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side)[0]
+        space.MatchSpace('JNT_foot_%s' % side, locator_foot).translation_rotation()
+        cmds.parent(locator_foot, 'RigParts')
+
+        # Retrieve the joints for the current side
+        joints = process.get_option("Foot_%s" % side, group="Joint")
+        
+        joints = ['locator_foot_%s' % side,
+                'joint_ball_%s' % side,
+                'joint_toe_%s' % side, 
+
+        rig = rigs.FootRig('foot', side)
+        rig.set_joints(joints)
+        rig.set_attribute_control('CNT_LEG_BTM_1_%s' % side) 
+        rig.set_pivot_locators('locator_heel_%s' % side, 'locator_yawin_%s' % side, 'locator_yawout_%s' % side)
+        rig.set_ik_parent('buffer_ankle_%s1' % side)
+        rig.set_ik_leg(['offset_CNT_SUB_LEG_BTM_1_%s' % side, 'xform_ikHandle_leg_1_%s' % side])
+        rig.set_buffer(True)
+        rig.set_control_shape('square')
+        rig.set_control_size(control_size)
+        rig.create()
+        
+        #rig.set_control_parent('CNT_SUB_LEG_BTM_1_%s' % side)
+        #rig.set_setup_parent(setup_group)

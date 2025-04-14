@@ -1,0 +1,33 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                return
+        
+        # Create a setup group for organization
+        setup_group = cmds.group(empty=True, name="SetupGroup_FootRoll_%s" % side.upper())
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)
+        foot_roll.set_attach_joints(True)
+        foot_roll.set_create_roll_controls(True)
+        foot_roll.set_setup_group(setup_group)  # Assign the setup group
+        
+        # Resolve potential buffering issues
+        foot_roll.set_buffer(True)  # Default buffering behavior
+        
+        # Create the rig
+        foot_roll.create()
+        
+        print("Foot roll created successfully for side '{}'.".format(side))
+    
+    return

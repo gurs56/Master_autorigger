@@ -1,0 +1,35 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+import maya.cmds as cmds
+
+def create_limb_control(control_name, joint_name, color):
+    
+    # Initialize the control
+    gear = rigs_util.Control(control_name)
+    gear.set_curve_type('gear')
+    gear.set_curve_scale(2)
+    gear.color(color)
+    gear.create_xform(prefix='xform')
+    
+  # Add IK/FK switch attribute
+    cmds.addAttr(control_name, longName='IKFKSwitch', attributeType='float', minValue=0, maxValue=1, defaultValue=0, keyable=True)
+    print("Created control {} with IK/FK switch attribute.".format(control_name))        
+    
+    ikfk = "IKFK_SWITCH"
+    gears = ["L_Leg_Gear", "R_Leg_Gear", "L_Arm_Gear", "R_Arm_Gear"]
+    
+    return control_name
+    
+def main():
+    # Define joint names and corresponding control names
+    limb_data = [
+        {'control_name': 'CNT_ARM_L', 'joint_name': 'JNT_arm_l', 'color': 6},   # Left arm
+        {'control_name': 'CNT_ARM_R', 'joint_name': 'JNT_arm_r', 'color': 13},  # Right arm
+        {'control_name': 'CNT_LEG_L', 'joint_name': 'JNT_leg_l', 'color': 6},   # Left leg
+        {'control_name': 'CNT_LEG_R', 'joint_name': 'JNT_leg_r', 'color': 13}   # Right leg
+    ]   
+    # Loop through each limb and create a control
+    for limb in limb_data:
+        create_limb_control(limb['control_name'], limb['joint_name'], limb['color'])
+        
+main()

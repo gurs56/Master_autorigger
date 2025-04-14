@@ -1,0 +1,21 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+     #Putting joints in list
+    joints = []
+    for i in process.get_option("Spine", group="Joint"):
+        if "JNT_neck" in i:
+            joints.append(i)
+    
+    neck = rigs.FkRig("neck", "C")
+    neck.set_joints(joints)
+    neck.set_control_offset_axis("z")
+    neck.set_control_size(10)
+    
+    neck.delete_setup()
+    neck.create()
+    #spine.set_control_parent("CNT_SPINE_2_C")
+   
+    return

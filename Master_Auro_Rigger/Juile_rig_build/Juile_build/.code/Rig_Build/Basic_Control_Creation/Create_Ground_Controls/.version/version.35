@@ -1,0 +1,49 @@
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import core
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    
+    #Spawn joint to give control something to attach too
+    joints = cmds.joint()
+    #jointR = process.get_option("Root", group = "Joint")  # Only pass the option name
+    Ctrl = rigs.GroundRig("World")
+    Ctrl.set_joints(joints)
+    Ctrl.set_attach_joints(False)
+    
+    Ctrlgrp = process.get_option("Ctrl_grp", group = "Groups")
+    
+    #Set the control shape and size and colour
+    Ctrl.set_control_shape("outwardCirclePointer")
+    Ctrl.set_control_size(3)
+    Ctrl.set_control_color(22)
+    Ctrl.set_scalable(True)
+    Ctrl.set_sub_control_shape("circle")
+    Ctrl.set_sub_control_size(0.6)
+    subctrl = Ctrl.get_sub_controls("CNT_SUB_WORLD_2")
+
+    # Create the Root control rig
+    Root_ctrl = rigs.FkRig("Root_directional",side=None)
+    Root_ctrl.set_control_size(2)
+    Root_ctrl.set_control_shape("circle_arrow")
+    Root_ctrl.set_joints([joints])
+    #Root_ctrl.set_offset_rotation([90, 0, 0])
+    
+    #Spawn both controls and then delete the setup
+    Root_ctrl.create()
+    Root_ctrl.delete_setup()
+    print(subctrl)
+    Ctrl.create()
+    Ctrl.delete_setup()
+    
+    #delete joint
+    cmds.delete(joints)
+    #cmds.parent("Root_ctrl", "CNT_SUB_WORLD_2")
+    
+    #parent root to world
+    Root_ctrl.set_control_parent("CNT_SUB_WORLD_2")
+    Ctrl.set_control_parent(Ctrlgrp)
+    
+   
+    return

@@ -1,0 +1,45 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+rigparts = process.get_option("RigParts", group="Groups")
+
+def main():
+    for side in ['L', 'R']:
+        rig_fk_foot(side)
+
+def rig_fk_foot(side):
+    # Retrieve the foot joints for the FK rig
+    foot_options = process.get_option("Foot_%s" % side.upper(), group="Joint")
+    
+    if foot_options and len(foot_options) >= 3:  # Ensure there are at least 3 joints
+        foot_joint = foot_options[0]
+        ball_joint = foot_options[1]
+        toe_joint = foot_options[2]
+        print "Foot joint for side {}: {}".format(side, foot_joint)
+    else:
+        print "No sufficient foot options found for side {}.".format(side)
+        return  # Exit the function if no valid options are found
+
+    # Define the joints for the current side
+    joints = [
+        'locator_foot_%s' % side.upper(),
+        ball_joint,
+        toe_joint
+    ]
+    
+    # Create and configure the FK rig
+    rig = rigs.FkRig('fk_foot', side)
+    rig.set_joints(joints)
+    rig.set_buffer(True)
+    rig.set_control_size(5)
+    rig.set_build_hierarchy(True)
+    rig.create()
+
+    # Parent FK controls to the FK leg control
+    fk_leg_control = 'CNT_FK_LEG_3_%s' % side
+    if cmds.objExists(fk_leg_control):
+        rig.set_control_parent(fk_leg_control)
+    else:
+        cmds.warning("Control '%s' does not exist! FK foot rig will not be parented." % fk_leg_control)
+
+    rig.set_setup_parent(rigparts)

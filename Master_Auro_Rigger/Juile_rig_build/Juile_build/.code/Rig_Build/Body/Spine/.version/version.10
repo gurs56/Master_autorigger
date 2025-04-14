@@ -1,0 +1,46 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    RigParts = process.get_option("RigParts", group = "Groups")
+    
+    #Putting joints in list
+    joints = []
+    for i in process.get_option("Spine", group="Joint"):
+        if "JNT_spine" in i:
+            joints.append(i)
+     
+     # Debugging: Print retrieved joints
+    print("Retrieved Spine Joints:", joints)
+    
+    # Check if any joints are found
+    if not joints:
+        cmds.warning("No spine joints found!")
+        return
+        
+    spine = rigs.SpineRig('Spine', 'C')
+    spine.set_joints(joints)
+    spine.set_control_size(15)
+    spine.set_attach_joints(True)
+    #spine.set_orient_controls_to_joints(True)
+    #spine.set_control_offset_axis('z')
+    spine.set_ribbon(True)
+    
+    #spine.delete_setup()
+    spine.create()
+    
+    # Parent the controls and setup
+    if cmds.objExists("CNT_SUB_COG_1_C"):
+        spine.set_control_parent("CNT_SUB_COG_1_C")
+    else:
+        cmds.warning("Control parent 'CNT_SUB_COG_1_C' does not exist!")
+
+    if RigParts:
+        spine.set_setup_parent(RigParts)
+    else:
+        cmds.warning("RigParts group does not exist or is not specified!")
+
+    print("Spine Rig created successfully.")
+    
+    return

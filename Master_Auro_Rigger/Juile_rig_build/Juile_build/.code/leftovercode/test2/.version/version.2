@@ -1,0 +1,97 @@
+import maya.cmds as cmds
+
+def create_foot_roll_rig(joints, side):
+    """
+    Creates a foot roll rig for a given side.
+    Args:
+        joints (dict): Dictionary containing joint names (foot, ball, toe).
+        side (str): Side identifier ('l' or 'r').
+    """
+    # Validate joint existence
+    for key, joint in joints.items():
+        if not cmds.objExists(joint):
+            cmds.error("Joint '{}' does not exist.".format(joint))
+            return
+
+    # Create controls
+    foot_ctrl = cmds.circle(name="CNT_FOOTROLL_{}".format(side.upper()), nr=(0, 1, 0), r=3.0)[0]
+    ball_ctrl = cmds.circle(name="CNT_BALL_{}".format(side.upper()), nr=(0, 1, 0), r=2.5)[0]
+    toe_ctrl = cmds.circle(name="CNT_TOE_{}".format(side.upper()), nr=(0, 1, 0), r=2.0)[0]
+
+    # Create offset groups
+    foot_grp = cmds.group(foot_ctrl, name="GRP_FOOTROLL_{}".format(side.upper()))
+    ball_grp = cmds.group(ball_ctrl, name="GRP_BALL_{}".format(side.upper()))
+    toe_grp = cmds.group(toe_ctrl, name="GRP_TOE_{}".format(side.upper()))
+
+    # Position groups at the respective joints
+    position_group_at_joint(foot_grp, joints['foot'])
+    position_group_at_joint(ball_grp, joints['ball'])
+    position_group_at_joint(toe_grp, joints['toe'])
+
+    # Parent groups to create hierarchy
+    cmds.parent(toe_grp, ball_ctrl)
+    cmds.parent(ball_grp, foot_ctrl)
+
+    # Add attributes for foot roll
+    add_foot_roll_attributes(foot_ctrl)
+
+    # Set up connections
+    setup_foot_roll_connections(foot_ctrl, ball_ctrl, toe_ctrl, joints)
+
+    print("Foot roll rig created for side '{}'.".format(side))
+
+
+def position_group_at_joint(group, joint):
+    """
+    Aligns a group to a joint's position.
+    Args:
+        group (str): The name of the group to position.
+        joint (str): The name of the joint.
+    """
+    joint_pos = cmds.xform(joint, query=True, worldSpace=True, translation=True)
+    cmds.xform(group, worldSpace=True, translation=joint_pos)
+
+
+def add_foot_roll_attributes(control):
+    """
+    Adds custom attributes for foot roll animation to the control.
+    Args:
+        control (str): Name of the control to add attributes to.
+    """
+    cmds.addAttr(control, longName="heelRoll", attributeType="float", keyable=True)
+    cmds.addAttr(control, longName="toeRoll", attributeType="float", keyable=True)
+    cmds.addAttr(control, longName="ballRoll", attributeType="float", keyable=True)
+
+
+def setup_foot_roll_connections(foot_ctrl, ball_ctrl, toe_ctrl, joints):
+    """
+    Connects foot roll attributes to joint rotations.
+    Args:
+        foot_ctrl (str): Name of the foot control.
+        ball_ctrl (str): Name of the ball control.
+        toe_ctrl (str): Name of the toe control.
+        joints (dict): Dictionary containing joint names.
+    """
+    # Connect foot control attributes to joint rotations
+    cmds.connectAttr(foot_ctrl + ".heelRoll", joints['foot'] + ".rotateX")
+    cmds.connectAttr(foot_ctrl + ".toeRoll", joints['toe'] + ".rotateX")
+    cmds.connectAttr(foot_ctrl + ".ballRoll", joints['ball'] + ".rotateX")
+
+
+def main():
+    # Define joints and sides
+    sides = ['l', 'r']
+    joint_structure = {
+        'foot': 'JNT_IK_foot_{}',
+        'ball': 'JNT_IK_ball_{}',
+        'toe': 'JNT_IK_toe_{}'
+    }
+
+    # Loop through each side and create the rig
+    for side in sides:
+        joints = {key: joint_structure[key].format(side) for key in joint_structure}
+        create_foot_roll_rig(joints, side)
+
+
+if __name__ == "__main__":
+    main()

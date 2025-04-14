@@ -1,0 +1,36 @@
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+rigparts = process.get_option("RigParts", group="Groups")
+
+def main():
+    # List of sides
+    sides = ['l', 'r']
+    # Loop for Legs
+    for leg in sides:
+        # Find FK Leg joints for the current side
+        FKLeg = [
+            i for i in process.get_option("FK_Leg", group="IKFK")
+            if i.endswith('_%s' % leg)  # Ensure the name ends with the correct side
+        ]
+        
+        # Debugging: Print the joints for the current side
+        print("Found FK Leg Joints for side '%s': %s" % (leg, FKLeg))
+        
+        # Skip if no joints are found for the current side
+        if not FKLeg:
+            cmds.warning("No FK Leg joints found for side '%s'!" % leg)
+            continue
+        
+        # Create FK rig for the leg
+        LegRig = rigs.FkRig("FK_Leg", leg)  # Pass the correct side (leg) here
+        LegRig.set_joints(FKLeg)
+        LegRig.set_control_size(8)
+        LegRig.set_control_offset_axis("z")
+        LegRig.set_buffer(True)
+        LegRig.delete_setup()
+        LegRig.create()
+        LegRig.set_setup_parent(rigparts)
+        
+    cmds.parent("controls_FK_Leg_1_L", "CNT_SUB_COG_1_C")
+    cmds.parent("controls_FK_Leg_1_R", "CNT_SUB_COG_1_C")

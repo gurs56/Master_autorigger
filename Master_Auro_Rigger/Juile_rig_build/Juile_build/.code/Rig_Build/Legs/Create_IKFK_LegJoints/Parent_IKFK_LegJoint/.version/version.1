@@ -1,0 +1,17 @@
+import maya.cmds as cmds
+
+def main():
+    
+    sides = ["l", "r"]
+    
+    for side in sides:
+        
+        for jnt in ["JNT_thigh", "JNT_calf", "JNT_foot", "JNT_ball", "JNT_toe"]:
+            name = jnt.split('_')[1]
+            list = ['JNT_IK_%s_%s' % ( name, side ), 'JNT_FK_%s_%s' % ( name, side ), 'JNT_%s_%s' % ( name, side )] 
+            
+        cmds.parentConstraint(list, mo=True)
+               
+   
+    return
+    

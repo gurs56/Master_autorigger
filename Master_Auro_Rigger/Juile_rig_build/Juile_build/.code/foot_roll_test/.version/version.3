@@ -1,0 +1,144 @@
+import maya.cmds as cmds
+
+def create_foot_rig(side='l'):
+    """
+    Creates a simple foot rig for the given side (L or R).
+    Assumes the following joints already exist in the scene:
+      - JNT_ankle_<side>
+      - JNT_ball_<side>
+      - JNT_toe_<side>
+
+    Example usage:
+      create_foot_rig('L')
+    """
+
+    ankle_jnt = 'JNT_foot_%s' % side
+    ball_jnt  = 'JNT_ball_%s'  % side
+    toe_jnt   = 'JNT_toe_%s'   % side
+
+    # -------------------------------------------------------------------------
+    # 1. Create IK Handles
+    # -------------------------------------------------------------------------
+    # IK from ankle to ball
+    ankle_ball_ik = cmds.ikHandle(
+        name='IK_legBall_%s' % side,
+        startJoint=ankle_jnt,
+        endEffector=ball_jnt,
+        solver='ikRPsolver'
+    )[0]
+    
+    # IK from ball to toe
+    ball_toe_ik = cmds.ikHandle(
+        name='IK_legToe_%s' % side,
+        startJoint=ball_jnt,
+        endEffector=toe_jnt,
+        solver='ikRPsolver'
+    )[0]
+
+    # -------------------------------------------------------------------------
+    # 2. Create Foot Control Curve
+    # -------------------------------------------------------------------------
+    foot_ctrl = 'CNT_FOOT_%s' % side
+    if not cmds.objExists(foot_ctrl):
+        foot_ctrl = cmds.circle(
+            name=foot_ctrl,
+            normal=(0,1,0),
+            radius=3
+        )[0]
+
+    # Move foot control to match ankle position (optional step)
+    ankle_pos = cmds.xform(ankle_jnt, q=True, ws=True, t=True)
+    cmds.xform(foot_ctrl, ws=True, t=ankle_pos)
+
+    # -------------------------------------------------------------------------
+    # 3. Add a Foot Roll Attribute
+    # -------------------------------------------------------------------------
+    if not cmds.attributeQuery('footRoll', node=foot_ctrl, exists=True):
+        cmds.addAttr(foot_ctrl, ln='footRoll', at='float', dv=0, k=True)
+
+    # -------------------------------------------------------------------------
+    # 4. Create Pivot Locators/Groups
+    #    A common approach is to nest them to handle roll pivoting:
+    #    foot_ctrl -> foot_roll_grp -> ball_roll_grp -> toe_roll_grp
+    # -------------------------------------------------------------------------
+    # Heel pivot locator
+    heel_loc = cmds.spaceLocator(name='LOC_heelPivot_%s' % side)[0]
+    # Position it at the heel
+    heel_pos = cmds.xform(ankle_jnt, q=True, ws=True, t=True)
+    # Move it slightly behind the ankle if you have a known measurement.
+    cmds.xform(heel_loc, ws=True, t=(heel_pos[0], heel_pos[1], heel_pos[2]-2))
+
+    # Parent the loc under the foot_ctrl
+    cmds.parent(heel_loc, foot_ctrl)
+
+    # Create a group from it for better pivot (or use the locator itself)
+    heel_grp = cmds.group(em=True, name='GRP_heelRoll_%s' % side)
+    cmds.delete(cmds.pointConstraint(heel_loc, heel_grp))
+    cmds.parent(heel_grp, foot_ctrl)
+    cmds.delete(heel_loc)  # optional: we can directly use a group instead of a locator
+
+    # Ball pivot group
+    ball_grp = cmds.group(em=True, name='GRP_ballRoll_%s' % side)
+    ball_pos = cmds.xform(ball_jnt, q=True, ws=True, t=True)
+    cmds.xform(ball_grp, ws=True, t=ball_pos)
+    cmds.parent(ball_grp, heel_grp)
+
+    # Toe pivot group
+    toe_grp = cmds.group(em=True, name='GRP_toeRoll_%s' % side)
+    toe_pos = cmds.xform(toe_jnt, q=True, ws=True, t=True)
+    cmds.xform(toe_grp, ws=True, t=toe_pos)
+    cmds.parent(toe_grp, ball_grp)
+
+    # -------------------------------------------------------------------------
+    # 5. Parent IK Handles to Groups
+    #    Typically, the ankle_ball_ik goes under the ball_grp so ball rolling
+    #    rotates it. The ball_toe_ik often goes under toe_grp so toe rolling
+    #    rotates it.
+    # -------------------------------------------------------------------------
+    cmds.parent(ankle_ball_ik, ball_grp)
+    cmds.parent(ball_toe_ik, toe_grp)
+
+    # -------------------------------------------------------------------------
+    # 6. Connect footRoll to the pivot groups via Set Driven Key or direct connections
+    #
+    # For demonstration, let's do a simple Set Driven Key approach:
+    #   - footRoll 0 = no rotation
+    #   - footRoll 10 = rotate ball_grp X by 45 deg, etc.
+    #   - This is a basic example. Adjust the angles to suit your needs.
+    # -------------------------------------------------------------------------
+    # Example: footRoll from 0 to 10 will drive ball_grp X rotation from 0 to 45
+    cmds.setDrivenKeyframe(
+        ball_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=0,
+        value=0
+    )
+    cmds.setDrivenKeyframe(
+        ball_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=10,
+        value=45
+    )
+
+    # Similarly, from footRoll 10 to 20, roll on toe_grp
+    cmds.setDrivenKeyframe(
+        toe_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=10,
+        value=0
+    )
+    cmds.setDrivenKeyframe(
+        toe_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=20,
+        value=45
+    )
+
+    print "Foot rig with foot roll created for side:", side
+
+def main():
+    create_foot_rig('L')
+    create_foot_rig('R')
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,68 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    # Retrieve the group for rig parts
+    rigparts = process.get_option("RigParts", group="Groups")
+    
+    
+    # Loop through both sides
+    for side in ['L', 'R']:
+        # Retrieve the foot joints for the current side
+        foot_options = process.get_option("Foot_%s" % side.upper(), group="Joint")
+        
+        if foot_options and len(foot_options) >= 3:  # Ensure there are at least 3 joints
+            foot_joint = foot_options[0]
+            ball_joint = foot_options[1]
+            toe_joint = foot_options[2]
+            print("Foot joint for side {}: {}".format(side, foot_joint))
+        else:
+            print("No sufficient foot options found for side {}.".format(side))
+            continue  # Skip to the next side if no options are found or valid
+        
+        # Create and position locator for the foot
+        locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side.upper())[0]
+        space.MatchSpace(foot_joint, locator_foot).translation_rotation()
+        cmds.parent(locator_foot, rigparts)
+       
+        
+        # Define the joints for the current side
+        joints = [
+            'locator_foot_%s' % side.upper(),
+            ball_joint,
+            toe_joint
+        ]
+
+        # Create and configure the FootRig
+        rig = rigs.FootRig('foot_%s' % side.upper())
+        rig.set_control_shape('square')
+        rig.set_joints(joints)
+        rig.set_attach_joints(True)
+        rig.set_attribute_control('CNT_IK_LEG_BTM_1_%s' % side)
+        rig.set_pivot_locators(
+            'Heel_%s_JNT' % side.upper(),
+            'BallYawIn_%s_JNT' % side.upper(),
+            'BallYawOut_%s_JNT' % side.upper()
+        )
+        rig.set_ik_leg([
+            'xform_offset_CNT_SUB_IK_LEG_BTM_1_%s' % side.upper(),
+            'xform_ikHandle_ik_leg_1_%s' % side.upper()
+        ])
+        rig.set_ik_parent("xform_ikHandle_ik_leg_1_%s" % side.upper())
+        rig.set_buffer(True)
+        rig.set_control_size(5)
+        rig.set_toe_control_as_sub_control(True)
+        rig.set_forward_roll_axis("Y")
+        rig.set_side_roll_axis("-Z")
+        rig.set_
+        rig.set_create_ball_control(True)
+        rig.set_sub_visibility(True)
+        
+        # Create the rig
+        rig.create()
+
+        # Optional parenting and setup
+        rig.set_control_parent('CNT_SUB_IK_LEG_BTM_1_%s' % side.upper())
+        rig.set_setup_parent(rigparts)
+

@@ -1,0 +1,24 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Define the joints for foot, ball, and toe
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)  # Assuming this is required
+        
+        # Set the setup parent to organize the rig
+        setup_group = cmds.group(empty=True, name='foot_roll_setup_%s' % side)  # Create a setup group
+        foot_roll.set_setup_group(setup_group)
+        
+        foot_roll.create()
+
+
+    return

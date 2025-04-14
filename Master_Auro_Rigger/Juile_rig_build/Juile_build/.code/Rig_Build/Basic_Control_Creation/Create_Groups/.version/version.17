@@ -1,0 +1,20 @@
+import maya.cmds as cmds
+from vtool.maya_lib import core
+
+def main():
+    
+    # Create a master group using rigs_util.create_group
+    Juile_Rig = core.create_group(empty=True, name="Juile_Rig")
+    
+    # List of asset group names
+    Asset_Grps = ["Joints", "Geo", "RigParts"]
+
+    # Loop through the list and create/parent each group
+    for group_name in Asset_Grps:
+        # Create the empty group with rigs_util.create_group
+        NewGrp = core.create_group(empty=True, name=group_name)
+        
+        # Parent the new group to the Juile_Rig group
+        cmds.parent(NewGrp, Juile_Rig)
+
+return

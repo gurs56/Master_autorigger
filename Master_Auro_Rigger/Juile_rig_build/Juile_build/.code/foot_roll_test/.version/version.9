@@ -1,0 +1,109 @@
+import maya.cmds as cmds
+
+def create_foot_rig_left():
+    """
+    Builds a simple left foot rig using:
+      - JNT_IK_foot_l
+      - JNT_IK_ball_l
+      - JNT_IK_toe_l
+
+    Creates two IK handles (foot->ball, ball->toe),
+    a foot control (CNT_FOOT_l),
+    and pivot groups (heel, ball, toe) for footRoll.
+    """
+
+    # 1. Define the joints (all lowercase 'l')
+    ankle_jnt = 'JNT_IK_foot_l'
+    ball_jnt  = 'JNT_IK_ball_l'
+    toe_jnt   = 'JNT_IK_toe_l'
+
+    # 2. Create IK Handles (ankle->ball, ball->toe)
+    #    Ensure these joints exist; otherwise Maya throws a RuntimeError.
+    ankle_ball_ik = cmds.ikHandle(
+        name='IK_legBall_l',
+        startJoint=ankle_jnt,
+        endEffector=ball_jnt,
+        solver='ikRPsolver'
+    )[0]
+
+    ball_toe_ik = cmds.ikHandle(
+        name='IK_legToe_l',
+        startJoint=ball_jnt,
+        endEffector=toe_jnt,
+        solver='ikRPsolver'
+    )[0]
+
+    # 3. Create a foot control (all lowercase '_l')
+    foot_ctrl = 'CNT_FOOT_l'
+    if not cmds.objExists(foot_ctrl):
+        foot_ctrl = cmds.circle(
+            name=foot_ctrl,
+            normal=(0, 1, 0),
+            radius=3
+        )[0]
+
+    # Snap the foot control to the ankle joint position
+    ankle_pos = cmds.xform(ankle_jnt, q=True, ws=True, t=True)
+    cmds.xform(foot_ctrl, ws=True, t=ankle_pos)
+
+    # 4. Add footRoll attribute if it doesn't exist
+    if not cmds.attributeQuery('footRoll', node=foot_ctrl, exists=True):
+        cmds.addAttr(foot_ctrl, ln='footRoll', at='float', dv=0, k=True)
+
+    # 5. Create pivot groups (heel->ball->toe), all referencing 'l'
+    heel_grp = 'GRP_heelRoll_l'
+    if not cmds.objExists(heel_grp):
+        heel_grp = cmds.group(em=True, name=heel_grp)
+    cmds.xform(heel_grp, ws=True, t=(ankle_pos[0], ankle_pos[1], ankle_pos[2] - 2))
+    cmds.parent(heel_grp, foot_ctrl)
+
+    ball_grp = 'GRP_ballRoll_l'
+    if not cmds.objExists(ball_grp):
+        ball_grp = cmds.group(em=True, name=ball_grp)
+    ball_pos = cmds.xform(ball_jnt, q=True, ws=True, t=True)
+    cmds.xform(ball_grp, ws=True, t=ball_pos)
+    cmds.parent(ball_grp, heel_grp)
+
+    toe_grp = 'GRP_toeRoll_l'
+    if not cmds.objExists(toe_grp):
+        toe_grp = cmds.group(em=True, name=toe_grp)
+    toe_pos = cmds.xform(toe_jnt, q=True, ws=True, t=True)
+    cmds.xform(toe_grp, ws=True, t=toe_pos)
+    cmds.parent(toe_grp, ball_grp)
+
+    # 6. Parent IK Handles under pivot groups
+    cmds.parent(ankle_ball_ik, ball_grp)
+    cmds.parent(ball_toe_ik, toe_grp)
+
+    # 7. Simple setDrivenKey for footRoll (0-10 ball, 10-20 toe)
+    #    * You can adjust these values to suit your foot roll range *
+    cmds.setDrivenKeyframe(
+        ball_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=0,
+        value=0
+    )
+    cmds.setDrivenKeyframe(
+        ball_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=10,
+        value=45
+    )
+
+    cmds.setDrivenKeyframe(
+        toe_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=10,
+        value=0
+    )
+    cmds.setDrivenKeyframe(
+        toe_grp + '.rotateX',
+        cd=foot_ctrl + '.footRoll',
+        driverValue=20,
+        value=45
+    )
+
+    print "Foot rig created for JNT_IK_foot_l, JNT_IK_ball_l, JNT_IK_toe_l"
+
+
+

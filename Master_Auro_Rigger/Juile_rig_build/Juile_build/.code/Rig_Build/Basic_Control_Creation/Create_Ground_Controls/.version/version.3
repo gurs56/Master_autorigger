@@ -1,0 +1,30 @@
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import core
+from vtool.maya_lib import rigs
+import maya.cmds as cmds
+
+def main():
+    
+    """
+    # Create a control group
+    control_group = "Control_Group"
+    if not cmds.objExists(control_group):
+        Con_grp = cmds.group(em=True, name=control_group)
+    """
+    
+    # Set up FK rig
+    rig = rigs.FkRig("test", "C")  # 'test' is the name prefix, 'C' for center
+    
+    # Set the control shape to square
+    rig.set_control_shape("outwardCirclePointer")
+    
+    # Create the rig (will build the FK chain)
+    rig.create()
+    """
+    # Parent the rig under the control group
+    fk_controls = rig.controls  # This holds the created FK controls
+    cmds.parent(fk_controls[0], control_group)
+    """
+    print("Created FK rig with control curve shape: square")
+
+main()

@@ -1,0 +1,14 @@
+import maya.cmds as cmds
+
+def parent_constrain_to_bind(bind_joints, ik_or_fk_joints):
+    
+    joint_pairs = [
+    ("JNT_IK_upperarm_l", "JNT_FK_upperarm_l", "JNT_upperarm_l"),
+    ("JNT_IK_lowerarm_l", "JNT_FK_lowerarm_l", "JNT_lowerarm_l"),
+    ("JNT_IK_hand_l", "JNT_FK_hand_l", "JNT_hand_l")
+    
+    # Loop through the joint pairs and apply the parentConstraint
+    for ik_joint, fk_joint, bind_joint in joint_pairs:
+        cmds.parentConstraint(ik_joint, fk_joint, bind_joint, mo=True)
+    
+    

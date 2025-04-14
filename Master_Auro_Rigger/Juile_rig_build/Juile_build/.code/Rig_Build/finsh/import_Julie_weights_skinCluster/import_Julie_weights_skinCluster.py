@@ -1,0 +1,3 @@
+
+def main():
+    process.import_data('Julie_weights_skinCluster')

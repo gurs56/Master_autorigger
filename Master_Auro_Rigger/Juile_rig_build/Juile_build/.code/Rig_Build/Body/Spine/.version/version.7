@@ -1,0 +1,28 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    #Putting joints in list
+    joints = []
+    for i in process.get_option("Spine", group="Joint"):
+        if "JNT_spine" in i:
+            joints.append(i)
+    
+    
+    spine = rigs.SpineRig('Spine', 'C')
+    spine.set_joints(joints)
+    spine.set_control_size(15)
+    spine.set_attach_joints(True)
+    #spine.set_orient_controls_to_joints(True)
+    #spine.set_control_offset_axis('z')
+    spine.set_ribbon(True)
+    
+    #spine.delete_setup()
+    spine.create()
+    
+    spine.set_control_parent('CNT_SUB_COG_1_C')
+    spine.delete_setup()
+    
+    
+    return

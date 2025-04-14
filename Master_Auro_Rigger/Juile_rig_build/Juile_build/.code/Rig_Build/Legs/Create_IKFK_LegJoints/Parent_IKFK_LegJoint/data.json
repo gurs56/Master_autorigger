@@ -1,0 +1,14 @@
+[
+    [
+        "name",
+        "Parent_IKFK_LegJoint"
+    ],
+    [
+        "data_type",
+        "script.python"
+    ],
+    [
+        "sub_folder",
+        ""
+    ]
+]

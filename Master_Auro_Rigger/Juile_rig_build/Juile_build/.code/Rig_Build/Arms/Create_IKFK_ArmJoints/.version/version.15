@@ -1,0 +1,72 @@
+import maya.cmds as cmds
+
+def get_joint_suffix(name, suffix):
+    
+    #replace joint name with ik or fk
+    return name.replace("JNT", "JNT" + suffix)
+
+def duplicate_joints(joint_list, suffix, joint_storage):
+   
+    # Run throguh list given and duplicate the joints in list
+    for joint in joint_list:
+        if cmds.objExists(joint):
+            # Duplicate the joint, keeping its position and orientation
+            dup_joint = cmds.duplicate(joint, name=joint.replace("JNT", "JNT" + suffix), po=True)[0]
+            joint_storage.append(dup_joint)
+        else:
+            cmds.warning("Joint '{}' does not exist!".format(joint))
+            
+def parent_joints(joint_list):
+    
+    #parent in order of upperarm,lowerarm,hand
+    for i in range(len(joint_list) - 1):
+        if cmds.objExists(joint_list[i]) and cmds.objExists(joint_list[i + 1]):
+            cmds.parent(joint_list[i + 1], joint_list[i])
+
+def main():
+
+    # Look at all joints 
+    ArmJoints = cmds.ls(type='joint')
+      
+    # Target joint names to look for
+    target_names = ["JNT_upperarm", "JNT_lowerarm", "JNT_hand"]
+    
+    # List of right or left joints
+    LArmJoints = []
+    RArmJoints = []
+    
+    # List of ik or fk joints
+    ik_joints = []
+    fk_joints = []
+    
+    # Loop through all joints and check for matches
+    for joint in ArmJoints:
+        if "twist" not in joint:
+            for target in target_names:
+                if target in joint:
+                    if joint.endswith("_l"):
+                        LArmJoints.append(joint)
+                    elif joint.endswith("_r"):
+                        RArmJoints.append(joint)
+
+    # Print results for debugging
+    print("Left Arm Joints: {}".format(LArmJoints))
+    print("Right Arm Joints: {}".format(RArmJoints))
+    
+    # Duplicate IK and FK joints for left and right arms
+    ik_joints.extend(duplicate_joints(LArmJoints, "_IK"))
+    fk_joints.extend(duplicate_joints(LArmJoints, "_FK"))
+    ik_joints.extend(duplicate_joints(RArmJoints, "_IK"))
+    fk_joints.extend(duplicate_joints(RArmJoints, "_FK"))
+    
+    # Parent the IK and FK joints
+    parent_joints(ik_joints[:len(LArmJoints)])  # Parent left IK joints
+    parent_joints(ik_joints[len(LArmJoints):])  # Parent right IK joints
+    parent_joints(fk_joints[:len(LArmJoints)])  # Parent left FK joints
+    parent_joints(fk_joints[len(LArmJoints):])  # Parent right FK joints
+    
+    # Print final results
+    print("IK Joints: {}".format(ik_joints))
+    print("FK Joints: {}".format(fk_joints))
+
+    return

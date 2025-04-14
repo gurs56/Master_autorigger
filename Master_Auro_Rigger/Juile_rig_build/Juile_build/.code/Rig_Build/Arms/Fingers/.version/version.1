@@ -1,0 +1,61 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    # Variables
+    raw_fingers = process.get_option("Fingers", group="Joint")
+    finger_order = ['thumb', 'index', 'middle', 'ring', 'pinky']
+    sides = ['l', 'r']
+
+    # Organize fingers by side
+    finger_map = {side: [] for side in sides}
+    for item in raw_fingers:
+        side = item.split('_')[-1]
+        if side in sides:
+            finger_map[side].append(item)
+
+    # Process each side
+    for side, fingers in finger_map.items():
+        # Create the follow group
+        follow_grp = 'handFollow_Grp_%s' % side.upper()
+        if not cmds.objExists(follow_grp):
+            cmds.group(em=True, n=follow_grp)
+
+        # Create the parent group
+        parent_grp = 'controls_handdigits_1_%s' % side.upper()
+        if not cmds.objExists(parent_grp):
+            cmds.group(em=True, n=parent_grp, p=follow_grp)
+
+        # Rig each finger
+        for finger_name in finger_order:
+            # Filter joints for the current finger
+            joints = [joint for joint in fingers if finger_name in joint]
+            if not joints:
+                continue
+
+            # Create and configure the FK rig
+            rig = rigs.FkCurlRig(finger_name, side=side.upper())
+            rig.set_joints(joints)
+            rig.set_control_offset_axis('z')
+            rig.set_create_curl(True)
+
+            try:
+                rig.create()
+                if not cmds.objExists(rig.setup_group):
+                    cmds.warning("Empty setup group in rig: %s" % rig.get_description())
+                rig.delete_setup()
+                rig.set_control_parent(parent_grp)
+            except Exception as e:
+                cmds.warning("Failed to create rig for %s on side %s: %s" % (finger_name, side.upper(), str(e)))
+
+        # Create follow group for the side
+        follow_grp_final = cmds.group(em=True, n='handFollow_Grp_%s' % side.upper(), p='CNT_CLAVICLE_1_%s' % side.upper())
+        if not cmds.objExists('JNT_hand_%s' % side):
+            cmds.warning("Hand joint not found for side %s" % side)
+        else:
+            cmds.parentConstraint('JNT_hand_%s' % side, follow_grp_final, mo=0)
+
+    print("Finger rigging completed.")
+
+

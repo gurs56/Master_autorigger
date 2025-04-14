@@ -1,0 +1,74 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+rigparts = process.get_option("RigParts", group="Groups")
+
+def main():
+    # Loop through both sides
+    for side in ['l', 'r']:
+        # Retrieve the IK leg joints for the current side
+        foot_options = process.get_option("IK_Leg", group="Joint")
+
+        if foot_options:
+            # Filter for the IK foot, ball, and toe joints for the current side
+            ik_foot_joints = [
+                joint for joint in foot_options
+                if joint.endswith("_%s" % side) and (
+                    "_foot_" in joint or "_ball_" in joint or "_toe_" in joint
+                )
+            ]
+
+            if len(ik_foot_joints) == 3:  # Ensure we have exactly 3 joints
+                foot_joint, ball_joint, toe_joint = ik_foot_joints
+                print("IK joints for side {}: Foot: {}, Ball: {}, Toe: {}".format(
+                    side, foot_joint, ball_joint, toe_joint))
+            else:
+                print("IK joints for side {} not found or incomplete.".format(side))
+                continue  # Skip to the next side if joints are incomplete
+        else:
+            print("No IK leg joints found for side {}.".format(side))
+            continue  # Skip to the next side if no options are found
+
+        # Create and position locator for the foot
+        locator_foot = cmds.spaceLocator(n='locator_foot_%s' % side.upper())[0]
+        space.MatchSpace(foot_joint, locator_foot).translation_rotation()
+        cmds.parent(locator_foot, rigparts)
+
+        # Define the joints for the current side
+        joints = [
+            'locator_foot_%s' % side.upper(),
+            ball_joint,
+            toe_joint
+        ]
+
+        # Create and configure the FootRig
+        rig = rigs.FootRig('foot_%s' % side.upper())
+        rig.set_control_shape('square')
+        rig.set_joints(joints)
+        rig.set_attach_joints(True)
+        rig.set_attribute_control('CNT_IK_LEG_BTM_1_%s' % side.upper())
+        rig.set_pivot_locators(
+            'Heel_%s_JNT' % side.upper(),
+            'BallYawIn_%s_JNT' % side.upper(),
+            'BallYawOut_%s_JNT' % side.upper()
+        )
+        rig.set_ik_leg([
+            'xform_offset_CNT_SUB_IK_LEG_BTM_1_%s' % side.upper(),
+            'xform_ikHandle_IK_Leg_1_%s' % side.upper()
+        ])
+        rig.set_ik_parent("xform_ikHandle_IK_Leg_1_%s" % side.upper())
+        rig.set_buffer(True)
+        rig.set_control_size(5)
+        rig.set_toe_control_as_sub_control(True)
+        rig.set_forward_roll_axis("Y")
+        rig.set_side_roll_axis("Z")
+        rig.set_top_roll_axis("Z")
+        rig.set_create_ball_control(True)
+        
+        # Create the rig
+        rig.create()
+
+        # Optional parenting and setup
+        rig.set_control_parent('CNT_IK_LEG_BTM_1_%s' % side.upper())
+        rig.set_setup_parent(rigparts)

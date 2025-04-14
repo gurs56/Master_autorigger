@@ -1,0 +1,22 @@
+import maya.cmds as cmds
+
+def main():
+    
+    jnt_name = ["JNT_IK_thigh_l", "JNT_IK_thigh_r", "JNT_FK_thigh_l", "JNT_FK_thigh_r"]
+    RigParts = process.get_option("RigParts", group = "Groups")
+    
+    Armikfk = cmds.group(empty=True, name="Armikfk")
+    
+    for jnt in jnt_name:
+        
+        if cmds.objExists(jnt):
+            
+            cmds.parent(jnt, Armikfk)
+        
+        else
+        
+            print("cant find joints")
+            
+    cmds.parent(Armikfk, RigParts)
+    
+    return

@@ -1,0 +1,32 @@
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Original joints
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Check if all original joints exist
+        for joint in foot_joints:
+            if not cmds.objExists(joint):
+                cmds.warning("Joint '{}' does not exist!".format(joint))
+                return
+        
+        # Duplicate and rename joints with "JNT_FOOT_" prefix
+        duplicated_joints = []
+        for joint in foot_joints:
+            new_joint_name = joint.replace("JNT_", "JNT_FootRoll_")
+            dup_joint = cmds.duplicate(joint, name=new_joint_name)[0]  # Duplicate the joint
+            duplicated_joints.append(dup_joint)
+        
+        # Parent constrain the duplicated joints to the original joints
+        for orig_joint, dup_joint in zip(foot_joints, duplicated_joints):
+            cmds.parentConstraint(orig_joint, dup_joint, mo=True)  # Maintain offset
+            
+        # Print success
+        print("Duplicated and constrained joints for side '{}':".format(side))
+        print("Original Joints: ", foot_joints)
+        print("Duplicated Joints: ", duplicated_joints)
+    
+    return

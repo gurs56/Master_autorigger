@@ -1,0 +1,10 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import core
+import maya.cmds as cmds
+
+def main():
+    
+    rig = rigs.Rig('Root',"%s"%"c")
+    rig.create()
+    
+    return

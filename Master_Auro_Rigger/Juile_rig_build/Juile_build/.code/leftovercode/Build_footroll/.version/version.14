@@ -1,0 +1,36 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+from vtool.maya_lib import attr
+import maya.cmds as cmds
+
+def main():
+    sides = ['l', 'r']
+    
+    for side in sides:
+        # Define the joints for foot, ball, and toe
+        foot_joints = ['JNT_foot_%s' % side, 'JNT_ball_%s' % side, 'JNT_toe_%s' % side]
+        
+        # Create the foot roll rig
+        foot_roll = rigs.BaseFootRig('FootRoll', side=side)
+        foot_roll.set_joints(foot_joints)  # Set the joints
+        foot_roll.set_attach_joints(True)
+        foot_roll.set_create_roll_controls(True)
+        
+        # Create pivot locators manually if the method doesn't exist
+        heel_loc = 'Heel_%s_Loc' % side.upper()
+        ball_yaw_in_loc = 'BallYawIn_%s_Loc' % side.upper()
+        ball_yaw_out_loc = 'BallYawOut_%s_Loc' % side.upper()
+        
+        # Check if locators exist; if not, create them
+        for loc in [heel_loc, ball_yaw_in_loc, ball_yaw_out_loc]:
+            if not cmds.objExists(loc):
+                cmds.spaceLocator(name=loc)  # Create a locator if it doesn't exist
+        
+        # Attach the locators to the foot roll rig (if there's a specific method for this, use it)
+        foot_roll.set_heel_locator(heel_loc)
+        foot_roll.set_ball_yaw_in_locator(ball_yaw_in_loc)
+        foot_roll.set_ball_yaw_out_locator(ball_yaw_out_loc)
+
+        foot_roll.create()
+        
+    return

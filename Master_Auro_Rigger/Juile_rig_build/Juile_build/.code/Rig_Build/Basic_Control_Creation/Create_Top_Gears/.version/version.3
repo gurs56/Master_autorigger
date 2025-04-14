@@ -1,0 +1,13 @@
+from vtool.maya_lib import rigs
+from vtool.maya_lib import rigs_util
+
+def main():
+    
+    gear = rigs_util.Control( 'CNT_GEAR_1' )
+    gear.set_curve_type( 'gear' )
+    gear.color(22)
+    xform = gear.create_xform( prefix = 'xform' )    
+    #gear.hide_attributes( attributes = None )
+    g_name = gear.get()
+    
+    return

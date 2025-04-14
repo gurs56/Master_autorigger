@@ -1,0 +1,78 @@
+import maya.api.OpenMaya as om
+import maya.cmds as cmds
+
+def create_foot_roll_rig(joints, side):
+    """
+    Creates a foot roll rig using the Maya API for a given side.
+
+    Args:
+        joints (dict): Dictionary containing joint names (foot, ball, toe).
+        side (str): Side identifier ('l' or 'r').
+    """
+    try:
+        # Check if joints exist
+        for key, joint in joints.items():
+            if not cmds.objExists(joint):
+                raise ValueError("Joint '{}' does not exist.".format(joint))
+        
+        # Create control groups
+        foot_ctrl = cmds.circle(n="CNT_FOOTROLL_{}_{}".format(side.upper(), side), nr=(0, 1, 0), r=2)[0]
+        ball_ctrl = cmds.circle(n="CNT_BALL_{}_{}".format(side.upper(), side), nr=(0, 1, 0), r=1.5)[0]
+        toe_ctrl = cmds.circle(n="CNT_TOE_{}_{}".format(side.upper(), side), nr=(0, 1, 0), r=1)[0]
+
+        # Create groups for control offsets
+        foot_grp = cmds.group(foot_ctrl, n="GRP_FOOTROLL_{}_{}".format(side.upper(), side))
+        ball_grp = cmds.group(ball_ctrl, n="GRP_BALL_{}_{}".format(side.upper(), side))
+        toe_grp = cmds.group(toe_ctrl, n="GRP_TOE_{}_{}".format(side.upper(), side))
+
+        # Position groups to the joints
+        for grp, joint in zip([foot_grp, ball_grp, toe_grp], [joints['foot'], joints['ball'], joints['toe']]):
+            position_group_at_joint(grp, joint)
+
+        # Parent groups in a hierarchy
+        cmds.parent(toe_grp, ball_ctrl)
+        cmds.parent(ball_grp, foot_ctrl)
+
+        # Add attributes for foot roll
+        for attr in ['heelRoll', 'toeRoll', 'ballRoll']:
+            cmds.addAttr(foot_ctrl, ln=attr, at='float', k=True)
+
+        # Connect attributes to joint rotations
+        cmds.connectAttr(foot_ctrl + ".heelRoll", joints['foot'] + ".rotateX")
+        cmds.connectAttr(foot_ctrl + ".toeRoll", joints['toe'] + ".rotateX")
+        cmds.connectAttr(foot_ctrl + ".ballRoll", joints['ball'] + ".rotateX")
+
+        print("Foot roll rig created for side '{}'.".format(side))
+
+    except Exception as e:
+        om.MGlobal.displayError(str(e))
+
+
+def position_group_at_joint(group, joint):
+    """
+    Moves a group to the position of a joint.
+
+    Args:
+        group (str): The name of the group to position.
+        joint (str): The name of the joint.
+    """
+    joint_pos = cmds.xform(joint, q=True, ws=True, t=True)
+    cmds.xform(group, ws=True, t=joint_pos)
+
+
+def main():
+    # Define sides and joints
+    sides = ['l', 'r']
+    joint_structure = {
+        'foot': 'JNT_IK_foot_{}',
+        'ball': 'JNT_IK_ball_{}',
+        'toe': 'JNT_IK_toe_{}'
+    }
+
+    for side in sides:
+        joints = {key: joint_structure[key].format(side) for key in joint_structure}
+        create_foot_roll_rig(joints, side)
+
+
+if __name__ == "__main__":
+    main()
