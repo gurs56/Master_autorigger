@@ -1,0 +1,26 @@
+import maya.cmds as cmds
+from vtool.maya_lib import space
+
+def main():
+
+    for side in ['l', 'r']:
+        locator_name = 'locator_foot_%s' % side
+
+        # Create and position the locator at the foot joint
+        if not cmds.objExists(locator_name):
+            locator_foot = cmds.spaceLocator(n=locator_name)[0]
+        else:
+            locator_foot = locator_name
+
+        space.MatchSpace('JNT_foot_%s' % side, locator_foot).translation_rotation()
+
+        # Parent the locator under the IK leg control so it moves correctly
+        ctrl = 'CNT_LEG_BTM_1_%s' % side.upper()
+
+        if cmds.objExists(ctrl):
+            try:
+                cmds.parent(locator_foot, ctrl)
+            except:
+                cmds.warning('Could not parent %s under %s' % (locator_foot, ctrl))
+        else:
+            cmds.warning('Control %s does not exist. Locator not parented.' % ctrl)

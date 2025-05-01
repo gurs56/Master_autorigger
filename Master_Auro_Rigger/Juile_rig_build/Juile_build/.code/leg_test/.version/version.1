@@ -1,0 +1,292 @@
+import maya.cmds as cmds
+
+# 1. Duplicate the leg joint chain into IK, FK, and bind chains
+def duplicate_joint_chain(root_joint, chain_suffix):
+    """
+    Duplicates the joint hierarchy starting at root_joint. 
+    All duplicates are suffixed with chain_suffix (e.g., "_IK_JNT", "_FK_JNT", "_bind_JNT").
+    Returns a list of new joint names in hierarchy order.
+    """
+    # Use recursion to duplicate entire hierarchy
+    def _dup_joint(orig_joint):
+        # Derive new name by adding suffix before _JNT
+        base_name = orig_joint.rsplit('_', 1)[0]  # remove last underscore and text (assumes _JNT)
+        new_name = f"{base_name}{chain_suffix}"
+        new_jnt = cmds.duplicate(orig_joint, parentOnly=True, name=new_name)[0]
+        # Duplicate each child joint recursively
+        for child in cmds.listRelatives(orig_joint, children=True, type='joint') or []:
+            new_child = _dup_joint(child)
+            cmds.parent(new_child, new_jnt)
+        return new_jnt
+
+    new_root = _dup_joint(root_joint)
+    # Get all joints in the new chain (dag traversal from new_root)
+    new_chain = cmds.ls(new_root, dag=True, type='joint')
+    return new_chain
+
+# 2. Create FK controls and constrain the FK chain
+def create_fk_controls(fk_joints):
+    """
+    Creates FK controls (nurbs circles) at each FK joint and orients them to the joint.
+    Parents the controls in an FK hierarchy and orient-constrains each FK joint to its control.
+    Returns a list of control names.
+    """
+    fk_ctrls = []
+    ctrl_grps = []
+    for jnt in fk_joints:
+        # Derive control name from joint name (replace _JNT with _FK_ctrl)
+        base = jnt.rsplit('_', 1)[0]  # e.g., "L_upperLeg_FK" from "L_upperLeg_FK_JNT"
+        ctrl_name = f"{base}_ctrl"
+        grp_name = f"{ctrl_name}_grp"
+        # Create a circle control
+        ctrl = cmds.circle(name=ctrl_name, normal=(1, 0, 0), radius=1.5)[0]  # normal=(1,0,0) to orient circle plane to X-axis
+        # Create a group for the control (for zeroing out transforms)
+        grp = cmds.group(ctrl, name=grp_name)
+        # Match group to joint position and orientation
+        cmds.delete(cmds.parentConstraint(jnt, grp, maintainOffset=False))
+        # Freeze control transforms so it has zeroed channels
+        cmds.makeIdentity(ctrl, apply=True, rotate=True, translate=True, scale=True)
+        fk_ctrls.append(ctrl)
+        ctrl_grps.append(grp)
+        # Constrain FK joint to follow control
+        cmds.orientConstraint(ctrl, jnt, maintainOffset=False)
+    # Parent FK control groups in hierarchy to form FK chain (thigh -> knee -> ankle -> ball -> toe)
+    for i in range(1, len(ctrl_grps)):
+        cmds.parent(ctrl_grps[i], fk_ctrls[i-1])  # parent current control group under previous control
+    return fk_ctrls
+
+# 3. Create IK handle and control setup for the IK chain
+def create_ik_setup(ik_joints, side_prefix):
+    """
+    Creates the IK handle from hip to ankle and a foot IK control at the ankle.
+    Also creates a pole vector control for the knee.
+    Returns the IK handle, IK control, and pole vector control.
+    """
+    hip_jnt = ik_joints[0]
+    knee_jnt = ik_joints[1]
+    ankle_jnt = ik_joints[2]
+    # Temporarily detach ankle's children (ball/toe) to define IK end effector at ankle
+    ankle_children = cmds.listRelatives(ankle_jnt, children=True, type='joint') or []
+    for child in ankle_children:
+        cmds.parent(child, world=True)
+    # Create IK handle for leg (hip to ankle)
+    ik_handle = cmds.ikHandle(name=f"{side_prefix}_leg_IK_handle", sj=hip_jnt, ee=ankle_jnt, sol='ikRPsolver')[0]
+    # Re-parent the detached children back under ankle joint
+    for child in ankle_children:
+        cmds.parent(child, ankle_jnt)
+    # Create foot IK control at the ankle position
+    ik_ctrl = cmds.curve(name=f"{side_prefix}_foot_IK_ctrl", d=1, p=[(-2,0,2), (2,0,2), (2,0,-2), (-2,0,-2), (-2,0,2)])  # square curve
+    cmds.delete(cmds.pointConstraint(ankle_jnt, ik_ctrl))  # move control to ankle joint position
+    cmds.makeIdentity(ik_ctrl, apply=True, translate=True)  # zero out translation
+    # Create a pole vector control for the knee
+    pv_ctrl = cmds.spaceLocator(name=f"{side_prefix}_leg_PV_ctrl")[0]
+    # Position the pole vector control: in front of the knee
+    hip_pos = cmds.xform(hip_jnt, q=True, ws=True, t=True)
+    knee_pos = cmds.xform(knee_jnt, q=True, ws=True, t=True)
+    ankle_pos = cmds.xform(ankle_jnt, q=True, ws=True, t=True)
+    # Compute a pole vector position (simple method: project knee forward)
+    # Vector from hip to ankle:
+    hip_to_ankle = [ankle_pos[i] - hip_pos[i] for i in range(3)]
+    # Vector from hip to knee:
+    hip_to_knee = [knee_pos[i] - hip_pos[i] for i in range(3)]
+    # Find vector perpendicular to both (pole vector direction)
+    import math
+    # cross product for pole vector direction
+    pv_dir = [hip_to_knee[1]*hip_to_ankle[2] - hip_to_knee[2]*hip_to_ankle[1],
+              hip_to_knee[2]*hip_to_ankle[0] - hip_to_knee[0]*hip_to_ankle[2],
+              hip_to_knee[0]*hip_to_ankle[1] - hip_to_knee[1]*hip_to_ankle[0]]
+    # normalize the vector
+    length = math.sqrt(pv_dir[0]**2 + pv_dir[1]**2 + pv_dir[2]**2)
+    if length < 1e-6:  # if cross product is zero (leg perfectly straight), use a default axis
+        pv_dir = [0, 0, 1]
+        length = 1.0
+    pv_dir = [pv_dir[i]/length for i in range(3)]
+    # Position pole vector control some distance along this direction from knee
+    pv_distance = (abs(hip_to_knee[0]) + abs(hip_to_knee[1]) + abs(hip_to_knee[2])) * 0.5  # half the leg length as distance
+    pv_target = [knee_pos[i] + pv_dir[i]*pv_distance for i in range(3)]
+    cmds.xform(pv_ctrl, ws=True, t=pv_target)
+    cmds.makeIdentity(pv_ctrl, apply=True, translate=True)  # freeze
+    # Constrain pole vector and parent IK handle under foot control (will integrate into foot roll later)
+    cmds.poleVectorConstraint(pv_ctrl, ik_handle)
+    # Parent constraint the ankle joint to the foot control for orientation (so foot follows control rotation)
+    cmds.orientConstraint(ik_ctrl, ankle_jnt, maintainOffset=False)
+    return ik_handle, ik_ctrl, pv_ctrl
+
+# 4. Implement a foot roll rig using heel, ball, and toe pivot groups
+def setup_foot_roll(ik_ctrl, ik_handle, ik_joints, side_prefix):
+    """
+    Creates a reverse-foot hierarchy (heel -> ball -> toe pivots) under the foot IK control.
+    Adds foot roll attributes to the IK control and connects them to pivot group rotations.
+    Parents the IK handle under the pivot hierarchy for proper foot roll behavior.
+    """
+    # Identify important foot joints from IK chain (assuming order: hip, knee, ankle, ball, toe, heel)
+    # We find by name in case hierarchy list is not linear due to heel branching.
+    ankle_jnt = next(j for j in ik_joints if 'ankle' in j.lower() or 'foot' in j.lower())
+    ball_jnt = next(j for j in ik_joints if 'ball' in j.lower())
+    toe_jnt = next(j for j in ik_joints if 'toe' in j.lower())
+    heel_jnt = next((j for j in ik_joints if 'heel' in j.lower()), None)
+    # Create empty groups for heel, ball, toe pivots
+    heel_pivot = cmds.group(empty=True, name=f"{side_prefix}_heel_pivot_grp")
+    ball_pivot = cmds.group(empty=True, name=f"{side_prefix}_ball_pivot_grp")
+    toe_pivot = cmds.group(empty=True, name=f"{side_prefix}_toe_pivot_grp")
+    # Position and orient pivot groups
+    # Heel pivot: position at heel joint (if exists), orient to ankle joint orientation
+    if heel_jnt:
+        cmds.delete(cmds.pointConstraint(heel_jnt, heel_pivot, mo=False))
+    else:
+        # If no heel joint, position heel pivot at ankle (as a fallback)
+        cmds.delete(cmds.pointConstraint(ankle_jnt, heel_pivot, mo=False))
+    cmds.delete(cmds.orientConstraint(ankle_jnt, heel_pivot, mo=False))
+    # Ball pivot: position/orient at ball joint
+    cmds.delete(cmds.pointConstraint(ball_jnt, ball_pivot, mo=False))
+    cmds.delete(cmds.orientConstraint(ball_jnt, ball_pivot, mo=False))
+    # Toe pivot: position/orient at toe joint
+    cmds.delete(cmds.pointConstraint(toe_jnt, toe_pivot, mo=False))
+    cmds.delete(cmds.orientConstraint(toe_jnt, toe_pivot, mo=False))
+    # Parent the pivot groups hierarchically under the foot control
+    cmds.parent(heel_pivot, ik_ctrl)
+    cmds.parent(ball_pivot, heel_pivot)
+    cmds.parent(toe_pivot, ball_pivot)
+    # Parent the IK handle under the toe pivot (lowest pivot) for foot roll influence
+    cmds.parent(ik_handle, toe_pivot)
+    # Add custom foot roll attributes to the foot IK control
+    for attr in ("heelRoll", "ballRoll", "toeRoll"):
+        if not cmds.objExists(f"{ik_ctrl}.{attr}"):
+            cmds.addAttr(ik_ctrl, longName=attr, attributeType='float', defaultValue=0.0, keyable=True)
+    # Connect the attributes to the pivot group rotations (assuming rotation X is the roll axis)
+    cmds.connectAttr(f"{ik_ctrl}.heelRoll", f"{heel_pivot}.rotateX")
+    cmds.connectAttr(f"{ik_ctrl}.ballRoll", f"{ball_pivot}.rotateX")
+    cmds.connectAttr(f"{ik_ctrl}.toeRoll", f"{toe_pivot}.rotateX")
+
+# 5. Add stretchy IK behavior to the IK leg
+def add_stretchy_ik(ik_joints, ik_ctrl, side_prefix):
+    """
+    Implements stretchy IK for the leg. Measures the distance from hip to ankle (IK control)
+    and scales the thigh and shin joints if the distance exceeds the original length.
+    Stretch only applies in IK mode (when IK_FK_Switch = 1).
+    """
+    hip_jnt = ik_joints[0]
+    knee_jnt = ik_joints[1]
+    ankle_ctrl = ik_ctrl  # foot control at ankle
+    # Create distance dimension node between hip and ankle control
+    hip_loc = cmds.spaceLocator(name=f"{side_prefix}_hip_distLoc")[0]
+    ankle_loc = cmds.spaceLocator(name=f"{side_prefix}_ankle_distLoc")[0]
+    # Point constrain locators to hip joint and ankle control to follow their positions
+    cmds.pointConstraint(hip_jnt, hip_loc, mo=False)
+    cmds.pointConstraint(ankle_ctrl, ankle_loc, mo=False)
+    dist_shape = cmds.distanceDimension(sp=(0,0,0), ep=(0,0,1))
+    dist_node = cmds.listRelatives(dist_shape, parent=True)[0]  # distanceDimension transform
+    dist_shape = cmds.listRelatives(dist_node, shapes=True)[0]
+    # Connect locators to distanceDimension
+    cmds.connectAttr(f"{hip_loc}Shape.worldPosition[0]", f"{dist_shape}.startPoint")
+    cmds.connectAttr(f"{ankle_loc}Shape.worldPosition[0]", f"{dist_shape}.endPoint")
+    cmds.rename(dist_node, f"{side_prefix}_leg_distance")  # rename distance node transform
+    dist_shape = cmds.listRelatives(f"{side_prefix}_leg_distance", shapes=True)[0]
+    # Calculate original leg length (hip->knee + knee->ankle distances)
+    hip_pos = cmds.xform(hip_jnt, q=True, ws=True, t=True)
+    knee_pos = cmds.xform(knee_jnt, q=True, ws=True, t=True)
+    ankle_pos = cmds.xform(ankle_ctrl, q=True, ws=True, t=True)
+    import math
+    thigh_len = math.dist(hip_pos, knee_pos)
+    shin_len = math.dist(knee_pos, ankle_pos)
+    original_length = thigh_len + shin_len
+    # Create utility nodes for stretch ratio
+    md_node = cmds.shadingNode('multiplyDivide', asUtility=True, name=f"{side_prefix}_stretch_md")
+    cmds.setAttr(f"{md_node}.operation", 2)  # divide operation
+    cmds.setAttr(f"{md_node}.input2X", original_length)
+    cmds.connectAttr(f"{dist_shape}.distance", f"{md_node}.input1X")
+    # Condition node to prevent squashing (if distance < original, use 1; if > original, use scale factor)
+    cond_node = cmds.shadingNode('condition', asUtility=True, name=f"{side_prefix}_stretch_cond")
+    cmds.setAttr(f"{cond_node}.operation", 2)  # 2: Greater Than
+    cmds.setAttr(f"{cond_node}.secondTerm", original_length)
+    cmds.connectAttr(f"{dist_shape}.distance", f"{cond_node}.firstTerm")
+    # If distance > original: use md_node.outputX (scale factor), else use 1
+    cmds.connectAttr(f"{md_node}.outputX", f"{cond_node}.colorIfTrueR")
+    cmds.setAttr(f"{cond_node}.colorIfFalseR", 1)
+    # Blend stretch based on IK/FK switch (only stretch in IK mode)
+    # Create blend node to blend between no-scale (1) and stretch factor by IK_FK_Switch
+    blend_node = cmds.shadingNode('blendTwoAttr', asUtility=True, name=f"{side_prefix}_stretch_blend")
+    cmds.setAttr(f"{blend_node}.input[0]", 1)  # FK (no stretch)
+    cmds.connectAttr(f"{cond_node}.outColorR", f"{blend_node}.input[1]")
+    # Ensure IK_FK_Switch attribute exists on ik_ctrl
+    if not cmds.objExists(f"{ik_ctrl}.IK_FK_Switch"):
+        cmds.addAttr(ik_ctrl, longName="IK_FK_Switch", attributeType='float', min=0.0, max=1.0, defaultValue=1.0, keyable=True)
+    cmds.connectAttr(f"{ik_ctrl}.IK_FK_Switch", f"{blend_node}.attributesBlender")
+    # Connect blend output to scale of thigh and shin IK (and bind) joints (assume local X axis is along bone)
+    thigh_ik = hip_jnt    # first joint is thigh
+    shin_ik = knee_jnt    # second joint is shin
+    # Find corresponding bind joints for thigh and shin (same index in bind list if lists align)
+    thigh_bind = thigh_ik.replace("_IK_JNT", "_bind_JNT")
+    shin_bind = shin_ik.replace("_IK_JNT", "_bind_JNT")
+    # Apply scale to IK and bind joints
+    for jnt in [thigh_ik, shin_ik, thigh_bind, shin_bind]:
+        if cmds.objExists(jnt):
+            cmds.connectAttr(f"{blend_node}.output", f"{jnt}.scaleX")
+
+# 6. Add IK/FK switch system to blend the bind chain
+def setup_ik_fk_switch(fk_joints, ik_joints, bind_joints, ik_ctrl):
+    """
+    Sets up IK/FK switching by constraining bind joints between FK and IK joints.
+    Adds an IK_FK_Switch attribute on the IK control (if not already) to drive the blend.
+    """
+    # Ensure IK_FK_Switch attribute exists (0 = FK, 1 = IK)
+    if not cmds.objExists(f"{ik_ctrl}.IK_FK_Switch"):
+        cmds.addAttr(ik_ctrl, longName="IK_FK_Switch", attributeType='float', min=0.0, max=1.0, defaultValue=1.0, keyable=True)
+    switch_attr = f"{ik_ctrl}.IK_FK_Switch"
+    # Create a reverse node to get inverse of switch (for FK weight)
+    rev_node = cmds.shadingNode('reverse', asUtility=True, name="IKFK_switch_reverse")
+    cmds.connectAttr(switch_attr, f"{rev_node}.inputX")
+    # Constrain each bind joint to follow FK and IK joint rotations
+    for bind_jnt in bind_joints:
+        # Determine corresponding IK and FK joint by name
+        if "_bind_JNT" not in bind_jnt:
+            continue
+        base = bind_jnt.replace("_bind_JNT", "")
+        fk_jnt = f"{base}_FK_JNT"
+        ik_jnt = f"{base}_IK_JNT"
+        if not cmds.objExists(fk_jnt) or not cmds.objExists(ik_jnt):
+            continue  # skip if joint not found
+        # Orient constraint bind to FK and IK joints
+        constraint = cmds.orientConstraint(fk_jnt, ik_jnt, bind_jnt, maintainOffset=False)[0]
+        # Connect IK_FK switch to constraint weights
+        # By default, weight0 = FK_jnt, weight1 = IK_jnt
+        cmds.connectAttr(f"{rev_node}.outputX", f"{constraint}.{fk_jnt}W0")
+        cmds.connectAttr(switch_attr, f"{constraint}.{ik_jnt}W1")
+    # Hide the IK and FK joint chains (bind joints remain visible if needed for skin)
+    for jnt in ik_joints + fk_joints:
+        cmds.setAttr(f"{jnt}.visibility", 0)
+
+# =========================
+# Main rig creation sequence
+# =========================
+
+# Identify the original leg joint chain (e.g., left leg)
+side = "L"  # assuming left side, adjust or loop for right side if needed
+root_joint = f"{side}_upperLeg_JNT"  # top of leg hierarchy (hip joint)
+
+# Duplicate chains
+ik_chain = duplicate_joint_chain(root_joint, "_IK_JNT")
+fk_chain = duplicate_joint_chain(root_joint, "_FK_JNT")
+bind_chain = duplicate_joint_chain(root_joint, "_bind_JNT")
+
+# Create FK controls
+fk_controls = create_fk_controls(fk_chain)
+
+# Create IK handle, foot IK control, and pole vector control
+ik_handle, ik_control, pv_control = create_ik_setup(ik_chain, side)
+
+# Set up foot roll pivots and attributes
+setup_foot_roll(ik_control, ik_handle, ik_chain, side)
+
+# Add stretchy IK functionality
+add_stretchy_ik(ik_chain, ik_control, side)
+
+# Set up IK/FK blending on bind chain
+setup_ik_fk_switch(fk_chain, ik_chain, bind_chain, ik_control)
+
+# (Optional) Hide or lock unnecessary channels on controls for cleanliness
+for ctrl in fk_controls + [ik_control, pv_control]:
+    # Lock and hide scale on controls
+    for attr in ("sx","sy","sz"):
+        if cmds.objExists(f"{ctrl}.{attr}"):
+            cmds.setAttr(f"{ctrl}.{attr}", lock=True, keyable=False)

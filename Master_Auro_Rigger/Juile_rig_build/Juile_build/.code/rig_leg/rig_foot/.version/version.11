@@ -1,0 +1,21 @@
+from vtool.maya_lib import space
+import maya.cmds as cmds
+
+def main():
+    for side in ['l', 'r']:
+        locator_name = 'locator_foot_%s' % side
+
+        # Create and match locator to joint
+        if not cmds.objExists(locator_name):
+            locator = cmds.spaceLocator(n=locator_name)[0]
+        else:
+            locator = locator_name
+
+        space.MatchSpace('JNT_foot_%s' % side, locator).translation_rotation()
+
+        # Parent to correct rig setup group, NOT to a control
+        setup_grp = 'setup_foot_1_%s' % side.upper()
+        if cmds.objExists(setup_grp):
+            cmds.parent(locator, setup_grp)
+        else:
+            cmds.warning("Missing setup group: %s" % setup_grp)
